@@ -1,0 +1,197 @@
+import { useState, useRef, useEffect } from 'react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
+
+interface AudioPlayerProps {
+  episode: {
+    id: string;
+    title: string;
+    thumbnail: string | null;
+    audioUrl: string | null;
+    podcastTitle?: string;
+  } | null;
+  onClose: () => void;
+}
+
+export function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(0.7);
+  const [isMuted, setIsMuted] = useState(false);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  useEffect(() => {
+    if (episode && audioRef.current) {
+      setIsPlaying(true);
+      audioRef.current.play().catch(() => setIsPlaying(false));
+    }
+  }, [episode?.id]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = isMuted ? 0 : volume;
+    }
+  }, [volume, isMuted]);
+
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime);
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration);
+    }
+  };
+
+  const handleSeek = (value: number[]) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = value[0];
+      setCurrentTime(value[0]);
+    }
+  };
+
+  const togglePlay = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const skip = (seconds: number) => {
+    if (audioRef.current) {
+      audioRef.current.currentTime += seconds;
+    }
+  };
+
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  if (!episode) return null;
+
+  return (
+    <div className="fixed bottom-0 left-0 right-0 z-50 glass border-t border-border">
+      <audio
+        ref={audioRef}
+        src={episode.audioUrl || undefined}
+        onTimeUpdate={handleTimeUpdate}
+        onLoadedMetadata={handleLoadedMetadata}
+        onEnded={() => setIsPlaying(false)}
+      />
+      
+      <div className="container mx-auto px-4 py-3">
+        <div className="flex items-center gap-4">
+          {/* Episode Info */}
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <img 
+              src={episode.thumbnail || 'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=100&h=100&fit=crop'}
+              alt={episode.title}
+              className="w-12 h-12 rounded-lg object-cover"
+            />
+            <div className="min-w-0">
+              <p className="font-medium text-sm text-foreground truncate">
+                {episode.title}
+              </p>
+              {episode.podcastTitle && (
+                <p className="text-xs text-muted-foreground truncate">
+                  {episode.podcastTitle}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Controls */}
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="text-muted-foreground hover:text-foreground"
+              onClick={() => skip(-15)}
+            >
+              <SkipBack className="w-5 h-5" />
+            </Button>
+            <Button 
+              size="icon"
+              className="w-10 h-10 bg-gradient-hero hover:opacity-90 shadow-primary"
+              onClick={togglePlay}
+            >
+              {isPlaying ? (
+                <Pause className="w-5 h-5" />
+              ) : (
+                <Play className="w-5 h-5 ml-0.5" />
+              )}
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="text-muted-foreground hover:text-foreground"
+              onClick={() => skip(15)}
+            >
+              <SkipForward className="w-5 h-5" />
+            </Button>
+          </div>
+
+          {/* Progress */}
+          <div className="hidden md:flex items-center gap-3 flex-1 max-w-md">
+            <span className="text-xs text-muted-foreground w-10 text-right">
+              {formatTime(currentTime)}
+            </span>
+            <Slider
+              value={[currentTime]}
+              max={duration || 100}
+              step={1}
+              onValueChange={handleSeek}
+              className="flex-1"
+            />
+            <span className="text-xs text-muted-foreground w-10">
+              {formatTime(duration)}
+            </span>
+          </div>
+
+          {/* Volume */}
+          <div className="hidden lg:flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="text-muted-foreground hover:text-foreground"
+              onClick={() => setIsMuted(!isMuted)}
+            >
+              {isMuted ? (
+                <VolumeX className="w-5 h-5" />
+              ) : (
+                <Volume2 className="w-5 h-5" />
+              )}
+            </Button>
+            <Slider
+              value={[isMuted ? 0 : volume * 100]}
+              max={100}
+              step={1}
+              onValueChange={(value) => setVolume(value[0] / 100)}
+              className="w-24"
+            />
+          </div>
+
+          {/* Close */}
+          <Button 
+            variant="ghost" 
+            size="icon"
+            className="text-muted-foreground hover:text-foreground"
+            onClick={onClose}
+          >
+            <X className="w-5 h-5" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
