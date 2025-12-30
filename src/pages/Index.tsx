@@ -46,16 +46,17 @@ const Index = () => {
       <HeroBanner latestEpisode={latestEpisode} />
       
       {/* Recent Episodes Section */}
-      <section className="py-20">
+      <section className="py-24 relative">
+        {/* Decorative gradient */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+        
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between mb-12">
+          <div className="flex items-center justify-between mb-16">
             <div>
-              <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-2">
+              <span className="text-primary text-sm font-bold uppercase tracking-widest mb-4 block">All Episodes</span>
+              <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground">
                 Recent Episodes
               </h2>
-              <p className="text-muted-foreground">
-                Catch up on the latest Hollywood news and updates
-              </p>
             </div>
           </div>
           
@@ -63,28 +64,32 @@ const Index = () => {
         </div>
       </section>
 
-      {/* About Section */}
-      <section className="py-20 bg-card">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl mx-auto text-center">
-            <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-6">
-              About <span className="text-secondary">mycreativelab</span>
+      {/* About Section with orange accent */}
+      <section className="py-24 relative overflow-hidden">
+        {/* Orange glow decoration */}
+        <div className="absolute -top-1/2 -right-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[150px]" />
+        
+        <div className="container mx-auto px-4 relative">
+          <div className="max-w-4xl mx-auto text-center">
+            <span className="text-primary text-sm font-bold uppercase tracking-widest mb-4 block">About Us</span>
+            <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground mb-8">
+              <span className="text-gradient">mycreativelab</span>
             </h2>
-            <p className="text-xl text-muted-foreground mb-8">
-              We create <span className="text-primary font-medium">digital solutions</span> for the film and media industry. 
+            <p className="text-xl md:text-2xl text-muted-foreground mb-12 leading-relaxed">
+              We create <span className="text-primary font-semibold">digital solutions</span> for the film and media industry. 
               From podcasts to production tools, we collaborate on any kind of digital work that brings your creative vision to life.
             </p>
             <div className="flex flex-wrap justify-center gap-4">
-              <div className="px-6 py-3 bg-muted rounded-full">
-                <span className="text-foreground font-medium">Podcasts</span>
+              <div className="px-6 py-3 bg-primary/10 border border-primary/30 rounded-full">
+                <span className="text-primary font-semibold">Podcasts</span>
               </div>
-              <div className="px-6 py-3 bg-muted rounded-full">
+              <div className="px-6 py-3 bg-muted rounded-full border border-border/50">
                 <span className="text-foreground font-medium">Film Production</span>
               </div>
-              <div className="px-6 py-3 bg-muted rounded-full">
+              <div className="px-6 py-3 bg-muted rounded-full border border-border/50">
                 <span className="text-foreground font-medium">Digital Media</span>
               </div>
-              <div className="px-6 py-3 bg-muted rounded-full">
+              <div className="px-6 py-3 bg-muted rounded-full border border-border/50">
                 <span className="text-foreground font-medium">Creative Consulting</span>
               </div>
             </div>
