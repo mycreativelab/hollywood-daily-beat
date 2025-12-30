@@ -3,34 +3,37 @@ import { Mic2, Instagram, Twitter, Youtube, Mail } from 'lucide-react';
 
 export function Footer() {
   return (
-    <footer className="bg-background border-t border-border py-16">
-      <div className="container mx-auto px-4">
+    <footer className="bg-card border-t border-border/30 py-20 relative overflow-hidden">
+      {/* Decorative gradient */}
+      <div className="absolute -bottom-1/2 -left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-[150px]" />
+      
+      <div className="container mx-auto px-4 relative">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           {/* Brand */}
           <div className="md:col-span-2">
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-secondary rounded-lg flex items-center justify-center">
-                <Mic2 className="w-5 h-5 text-secondary-foreground" />
+            <Link to="/" className="flex items-center gap-3 mb-6">
+              <div className="w-12 h-12 bg-gradient-orange rounded-lg flex items-center justify-center shadow-glow-sm">
+                <Mic2 className="w-6 h-6 text-primary-foreground" />
               </div>
-              <span className="font-display font-bold text-xl text-foreground">
+              <span className="font-display font-bold text-2xl text-foreground">
                 mycreativelab
               </span>
             </Link>
-            <p className="text-muted-foreground max-w-sm mb-6">
+            <p className="text-muted-foreground max-w-sm mb-8 leading-relaxed">
               Creating digital solutions for the film and media industry. 
               Daily podcasts, exclusive content, and creative collaboration.
             </p>
-            <div className="flex gap-4">
-              <a href="#" className="w-10 h-10 bg-muted rounded-full flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
+            <div className="flex gap-3">
+              <a href="#" className="w-11 h-11 bg-muted/50 border border-border/30 rounded-full flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-glow-sm transition-all duration-300">
                 <Instagram className="w-5 h-5" />
               </a>
-              <a href="#" className="w-10 h-10 bg-muted rounded-full flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
+              <a href="#" className="w-11 h-11 bg-muted/50 border border-border/30 rounded-full flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-glow-sm transition-all duration-300">
                 <Twitter className="w-5 h-5" />
               </a>
-              <a href="#" className="w-10 h-10 bg-muted rounded-full flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
+              <a href="#" className="w-11 h-11 bg-muted/50 border border-border/30 rounded-full flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-glow-sm transition-all duration-300">
                 <Youtube className="w-5 h-5" />
               </a>
-              <a href="#" className="w-10 h-10 bg-muted rounded-full flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
+              <a href="#" className="w-11 h-11 bg-muted/50 border border-border/30 rounded-full flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-glow-sm transition-all duration-300">
                 <Mail className="w-5 h-5" />
               </a>
             </div>
@@ -74,7 +77,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-border mt-12 pt-8">
+        <div className="border-t border-border/30 mt-16 pt-8">
           <p className="text-center text-muted-foreground text-sm">
             © {new Date().getFullYear()} mycreativelab. All rights reserved.
           </p>
