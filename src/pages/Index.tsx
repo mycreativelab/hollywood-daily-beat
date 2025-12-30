@@ -1,19 +1,39 @@
 import { Header } from '@/components/Header';
-import { Hero } from '@/components/Hero';
+import { HeroBanner } from '@/components/HeroBanner';
+import { EpisodeList } from '@/components/EpisodeList';
 import { Footer } from '@/components/Footer';
-import { PodcastCard } from '@/components/PodcastCard';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Headphones, Star, TrendingUp } from 'lucide-react';
 
 const Index = () => {
-  const { data: podcasts, isLoading } = useQuery({
-    queryKey: ['featured-podcasts'],
+  // Fetch latest episode for hero banner
+  const { data: latestEpisode } = useQuery({
+    queryKey: ['latest-episode'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('podcasts')
+        .from('episodes')
+        .select('*, podcasts(title)')
+        .order('published_at', { ascending: false })
+        .limit(1)
+        .single();
+      
+      if (error) throw error;
+      return {
+        ...data,
+        podcast_title: data.podcasts?.title
+      };
+    },
+  });
+
+  // Fetch recent episodes
+  const { data: recentEpisodes, isLoading } = useQuery({
+    queryKey: ['recent-episodes'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('episodes')
         .select('*')
-        .limit(3);
+        .order('published_at', { ascending: false })
+        .limit(6);
       
       if (error) throw error;
       return data;
@@ -23,86 +43,52 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <Hero />
+      <HeroBanner latestEpisode={latestEpisode} />
       
-      {/* Features Section */}
-      <section className="py-20 bg-muted/30">
+      {/* Recent Episodes Section */}
+      <section className="py-20">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-4">
-              Why Choose <span className="text-gradient">mycreativelab</span>?
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Get exclusive access to the best Hollywood content, curated just for you.
-            </p>
+          <div className="flex items-center justify-between mb-12">
+            <div>
+              <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-2">
+                Recent Episodes
+              </h2>
+              <p className="text-muted-foreground">
+                Catch up on the latest Hollywood news and updates
+              </p>
+            </div>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="p-6 rounded-2xl bg-card border border-border/50 text-center hover:border-primary/30 transition-colors hover:shadow-primary">
-              <div className="w-14 h-14 mx-auto mb-4 bg-gradient-hero rounded-2xl flex items-center justify-center">
-                <Headphones className="w-7 h-7 text-primary-foreground" />
-              </div>
-              <h3 className="font-display font-semibold text-foreground mb-2">Daily Episodes</h3>
-              <p className="text-muted-foreground text-sm">
-                Fresh content every day covering the latest Hollywood news and updates.
-              </p>
-            </div>
-            
-            <div className="p-6 rounded-2xl bg-card border border-border/50 text-center hover:border-primary/30 transition-colors hover:shadow-primary">
-              <div className="w-14 h-14 mx-auto mb-4 bg-gradient-accent rounded-2xl flex items-center justify-center">
-                <Star className="w-7 h-7 text-accent-foreground" />
-              </div>
-              <h3 className="font-display font-semibold text-foreground mb-2">Exclusive Interviews</h3>
-              <p className="text-muted-foreground text-sm">
-                Hear from industry insiders, filmmakers, and celebrities.
-              </p>
-            </div>
-            
-            <div className="p-6 rounded-2xl bg-card border border-border/50 text-center hover:border-primary/30 transition-colors hover:shadow-primary">
-              <div className="w-14 h-14 mx-auto mb-4 bg-secondary rounded-2xl flex items-center justify-center">
-                <TrendingUp className="w-7 h-7 text-secondary-foreground" />
-              </div>
-              <h3 className="font-display font-semibold text-foreground mb-2">Trending Topics</h3>
-              <p className="text-muted-foreground text-sm">
-                Stay ahead with breaking news and viral movie discussions.
-              </p>
-            </div>
-          </div>
+          <EpisodeList episodes={recentEpisodes || []} isLoading={isLoading} />
         </div>
       </section>
 
-      {/* Featured Podcasts Preview */}
-      <section className="py-20">
+      {/* About Section */}
+      <section className="py-20 bg-card">
         <div className="container mx-auto px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-4">
-              Featured Podcasts
+          <div className="max-w-3xl mx-auto text-center">
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-6">
+              About <span className="text-secondary">mycreativelab</span>
             </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Sign in to unlock all episodes and start listening.
+            <p className="text-xl text-muted-foreground mb-8">
+              We create <span className="text-primary font-medium">digital solutions</span> for the film and media industry. 
+              From podcasts to production tools, we collaborate on any kind of digital work that brings your creative vision to life.
             </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <div className="px-6 py-3 bg-muted rounded-full">
+                <span className="text-foreground font-medium">Podcasts</span>
+              </div>
+              <div className="px-6 py-3 bg-muted rounded-full">
+                <span className="text-foreground font-medium">Film Production</span>
+              </div>
+              <div className="px-6 py-3 bg-muted rounded-full">
+                <span className="text-foreground font-medium">Digital Media</span>
+              </div>
+              <div className="px-6 py-3 bg-muted rounded-full">
+                <span className="text-foreground font-medium">Creative Consulting</span>
+              </div>
+            </div>
           </div>
-          
-          {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="aspect-square rounded-2xl bg-muted animate-pulse" />
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {podcasts?.map((podcast) => (
-                <PodcastCard
-                  key={podcast.id}
-                  id={podcast.id}
-                  title={podcast.title}
-                  description={podcast.description}
-                  coverImage={podcast.cover_image}
-                  category={podcast.category}
-                />
-              ))}
-            </div>
-          )}
         </div>
       </section>
 
