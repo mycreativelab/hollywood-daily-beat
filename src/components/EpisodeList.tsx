@@ -52,7 +52,7 @@ export function EpisodeList({ episodes, isLoading }: EpisodeListProps) {
   }
 
   return (
-    <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-2">
+    <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
       {episodes.map((episode, index) => (
         <Link 
           key={episode.id} 
