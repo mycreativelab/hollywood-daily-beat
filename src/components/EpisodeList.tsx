@@ -52,39 +52,39 @@ export function EpisodeList({ episodes, isLoading }: EpisodeListProps) {
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+    <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-2">
       {episodes.map((episode, index) => (
         <Link 
           key={episode.id} 
           to={user ? `/podcasts/${episode.podcast_id}` : '/auth'}
           className="group block"
         >
-          {/* Square Image Container - Smaller */}
-          <div className="relative aspect-square rounded-xl overflow-hidden bg-card shadow-card hover:shadow-glow transition-all duration-500">
+          {/* Square Image Container - Much Smaller */}
+          <div className="relative aspect-square rounded-lg overflow-hidden bg-card shadow-sm hover:shadow-md transition-all duration-300">
             <img 
               src={episode.thumbnail || episodeImages[index % episodeImages.length]} 
               alt={episode.title}
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
             
             {/* Subtle gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-background/60 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-transparent" />
             
-            {/* Play Button - Smaller */}
+            {/* Play Button - Tiny */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-10 h-10 bg-primary rounded-full flex items-center justify-center shadow-glow transition-transform duration-300 group-hover:scale-110">
-                <Play className="w-4 h-4 text-primary-foreground ml-0.5" />
+              <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center shadow-sm transition-transform duration-300 group-hover:scale-110">
+                <Play className="w-2.5 h-2.5 text-primary-foreground ml-0.5" />
               </div>
             </div>
             
-            {/* Duration badge - Smaller */}
-            <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-full bg-background/80 backdrop-blur-sm text-foreground text-xs font-medium">
+            {/* Duration badge - Tiny */}
+            <div className="absolute bottom-1 right-1 px-1 py-0.5 rounded bg-background/80 backdrop-blur-sm text-foreground text-[10px] font-medium">
               {formatDuration(episode.duration)}
             </div>
           </div>
           
-          {/* Title below image - Smaller text */}
-          <h3 className="text-foreground font-display font-medium text-sm mt-2 line-clamp-2 group-hover:text-primary transition-colors duration-300">
+          {/* Title below image - Tiny text */}
+          <h3 className="text-foreground font-display font-medium text-xs mt-1 line-clamp-1 group-hover:text-primary transition-colors duration-300">
             {episode.title}
           </h3>
         </Link>
