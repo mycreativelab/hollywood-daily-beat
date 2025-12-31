@@ -9,6 +9,8 @@ import Auth from "./pages/Auth";
 import Podcasts from "./pages/Podcasts";
 import PodcastDetail from "./pages/PodcastDetail";
 import About from "./pages/About";
+import Admin from "./pages/Admin";
+import PendingApproval from "./pages/PendingApproval";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -26,6 +28,8 @@ const App = () => (
             <Route path="/podcasts" element={<Podcasts />} />
             <Route path="/podcasts/:id" element={<PodcastDetail />} />
             <Route path="/about" element={<About />} />
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/pending-approval" element={<PendingApproval />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
