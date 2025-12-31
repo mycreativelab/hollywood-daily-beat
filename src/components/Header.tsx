@@ -8,7 +8,7 @@ import { useUserProfile } from '@/hooks/useUserProfile';
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
-  const { isAdmin } = useUserProfile();
+  const { profile, isAdmin } = useUserProfile();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -60,7 +60,7 @@ export function Header() {
                   </Button>
                 )}
                 <span className="text-sm text-muted-foreground">
-                  {user.email}
+                  {profile?.display_name || user.email}
                 </span>
                 <Button 
                   variant="outline" 
@@ -116,6 +116,9 @@ export function Header() {
               </Link>
               {user ? (
                 <>
+                  <span className="text-sm text-muted-foreground py-2">
+                    Hallo, {profile?.display_name || user.email}
+                  </span>
                   {isAdmin && (
                     <Link 
                       to="/admin" 
@@ -126,7 +129,7 @@ export function Header() {
                       Admin
                     </Link>
                   )}
-                  <Button 
+                  <Button
                     variant="outline" 
                     onClick={() => {
                       handleSignOut();
