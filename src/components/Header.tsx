@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Mic2 } from 'lucide-react';
+import { Menu, X, Mic2, Shield } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
+import { useUserProfile } from '@/hooks/useUserProfile';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const { isAdmin } = useUserProfile();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -45,6 +47,18 @@ export function Header() {
           <div className="hidden md:flex items-center gap-4">
             {user ? (
               <>
+                {isAdmin && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    asChild
+                    className="text-primary"
+                  >
+                    <Link to="/admin">
+                      <Shield className="w-5 h-5" />
+                    </Link>
+                  </Button>
+                )}
                 <span className="text-sm text-muted-foreground">
                   {user.email}
                 </span>
@@ -101,16 +115,28 @@ export function Header() {
                 About
               </Link>
               {user ? (
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    handleSignOut();
-                    setIsMenuOpen(false);
-                  }}
-                  className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-                >
-                  Sign Out
-                </Button>
+                <>
+                  {isAdmin && (
+                    <Link 
+                      to="/admin" 
+                      className="flex items-center gap-2 text-primary py-2"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Shield className="w-4 h-4" />
+                      Admin
+                    </Link>
+                  )}
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      handleSignOut();
+                      setIsMenuOpen(false);
+                    }}
+                    className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
+                  >
+                    Sign Out
+                  </Button>
+                </>
               ) : (
                 <Button 
                   asChild
