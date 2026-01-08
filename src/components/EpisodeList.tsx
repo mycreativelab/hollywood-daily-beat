@@ -16,17 +16,8 @@ interface Episode {
 interface EpisodeListProps {
   episodes: Episode[];
   isLoading?: boolean;
+  maxSlots?: number;
 }
-
-// Unsplash images for episodes (square format)
-const episodeImages = [
-  'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&h=600&fit=crop&q=80', // Podcast microphone
-  'https://images.unsplash.com/photo-1478737270239-2f02b77fc618?w=600&h=600&fit=crop&q=80', // Recording studio
-  'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=600&h=600&fit=crop&q=80', // Film production
-  'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=600&h=600&fit=crop&q=80', // Cinema
-  'https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=600&h=600&fit=crop&q=80', // Movie theater
-  'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=600&h=600&fit=crop&q=80', // Film strip
-];
 
 function formatDuration(seconds: number | null): string {
   if (!seconds) return '0 min';
@@ -38,56 +29,87 @@ function formatDuration(seconds: number | null): string {
   return `${mins} min`;
 }
 
-export function EpisodeList({ episodes, isLoading }: EpisodeListProps) {
+function EpisodeCard({ episode }: { episode: Episode }) {
   const { user } = useAuth();
+  
+  return (
+    <Link 
+      to={user ? `/podcasts/${episode.podcast_id}` : '/auth'}
+      className="group block"
+    >
+      {/* Card with blurred gradient background and text */}
+      <div className="relative aspect-square rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
+        {/* Blurred gradient background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-background to-primary/20 backdrop-blur-sm" />
+        <div className="absolute inset-0 bg-background/40" />
+        
+        {/* Episode title as centered text */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-3 text-center">
+          <h3 className="text-foreground font-display font-semibold text-sm leading-tight line-clamp-3 mb-2">
+            {episode.title}
+          </h3>
+          
+          {/* Play Button */}
+          <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center shadow-md transition-transform duration-300 group-hover:scale-110">
+            <Play className="w-3.5 h-3.5 text-primary-foreground ml-0.5" />
+          </div>
+        </div>
+        
+        {/* Duration badge */}
+        <div className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded bg-background/80 backdrop-blur-sm text-foreground text-[10px] font-medium">
+          {formatDuration(episode.duration)}
+        </div>
+      </div>
+    </Link>
+  );
+}
 
+function PlaceholderCard() {
+  return (
+    <div className="block">
+      {/* Placeholder card with dashed border */}
+      <div className="relative aspect-square rounded-lg overflow-hidden border-2 border-dashed border-muted-foreground/30">
+        {/* Blurred gray background */}
+        <div className="absolute inset-0 bg-gradient-to-br from-muted/50 via-background to-muted/30 backdrop-blur-sm" />
+        
+        {/* Placeholder text */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center p-3 text-center">
+          <span className="text-muted-foreground font-display text-xs leading-tight">
+            More episodes<br />are upcoming
+          </span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function EpisodeList({ episodes, isLoading, maxSlots = 6 }: EpisodeListProps) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {[1, 2, 3, 4, 5, 6].map((i) => (
-          <div key={i} className="aspect-[4/3] rounded-2xl bg-card animate-pulse" />
+      <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
+        {Array.from({ length: maxSlots }).map((_, i) => (
+          <div key={i} className="aspect-square rounded-lg bg-card animate-pulse" />
         ))}
       </div>
     );
   }
 
+  // Create array of slots - episodes first, then placeholders
+  const slots = Array.from({ length: maxSlots }).map((_, index) => {
+    if (index < episodes.length) {
+      return { type: 'episode' as const, episode: episodes[index] };
+    }
+    return { type: 'placeholder' as const };
+  });
+
   return (
     <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
-      {episodes.map((episode, index) => (
-        <Link 
-          key={episode.id} 
-          to={user ? `/podcasts/${episode.podcast_id}` : '/auth'}
-          className="group block"
-        >
-          {/* Square Image Container - Much Smaller */}
-          <div className="relative aspect-square rounded-lg overflow-hidden bg-card shadow-sm hover:shadow-md transition-all duration-300">
-            <img 
-              src={episode.thumbnail || episodeImages[index % episodeImages.length]} 
-              alt={episode.title}
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-            />
-            
-            {/* Subtle gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-background/40 via-transparent to-transparent" />
-            
-            {/* Play Button - Tiny */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center shadow-sm transition-transform duration-300 group-hover:scale-110">
-                <Play className="w-2.5 h-2.5 text-primary-foreground ml-0.5" />
-              </div>
-            </div>
-            
-            {/* Duration badge - Tiny */}
-            <div className="absolute bottom-1 right-1 px-1 py-0.5 rounded bg-background/80 backdrop-blur-sm text-foreground text-[10px] font-medium">
-              {formatDuration(episode.duration)}
-            </div>
-          </div>
-          
-          {/* Title below image - Tiny text */}
-          <h3 className="text-foreground font-display font-medium text-xs mt-1 line-clamp-1 group-hover:text-primary transition-colors duration-300">
-            {episode.title}
-          </h3>
-        </Link>
+      {slots.map((slot, index) => (
+        slot.type === 'episode' ? (
+          <EpisodeCard key={slot.episode.id} episode={slot.episode} />
+        ) : (
+          <PlaceholderCard key={`placeholder-${index}`} />
+        )
       ))}
     </div>
   );
