@@ -90,6 +90,49 @@ serve(async (req) => {
       });
     }
 
+    // EARLY REJECTION: Reject requests with invalid audio URLs containing 'undefined'
+    if (body.audio_url && body.audio_url.includes('undefined')) {
+      console.log('Rejecting request with invalid audio URL:', body.audio_url);
+      return new Response(JSON.stringify({ error: 'Invalid audio URL containing undefined' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Normalize the title early for duplicate checking
+    const normalizedTitle = normalizeTitle(body.title);
+    const titlePattern = extractTitlePattern(normalizedTitle);
+
+    // DUPLICATE CHECK: Look for episodes with similar title created in the last 5 minutes
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+    
+    const { data: recentEpisodes, error: checkError } = await supabase
+      .from('episodes')
+      .select('id, title, created_at')
+      .eq('podcast_id', body.podcast_id)
+      .gte('created_at', fiveMinutesAgo);
+
+    if (checkError) {
+      console.error('Error checking for duplicates:', checkError);
+    } else if (recentEpisodes && recentEpisodes.length > 0) {
+      // Check if any recent episode matches the title pattern
+      const isDuplicate = recentEpisodes.some(ep => {
+        const epPattern = extractTitlePattern(ep.title);
+        return epPattern === titlePattern;
+      });
+
+      if (isDuplicate) {
+        console.log('Duplicate episode detected, rejecting:', normalizedTitle);
+        return new Response(JSON.stringify({ 
+          error: 'Duplicate episode detected',
+          message: `An episode with similar title was created in the last 5 minutes`
+        }), {
+          status: 409,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    }
+
     // Check if this is a valid episode
     const isValid = isValidEpisode({
       audio_url: body.audio_url,
@@ -101,7 +144,6 @@ serve(async (req) => {
 
     // If this is a valid episode, clean up faulty duplicates first
     if (isValid) {
-      const titlePattern = extractTitlePattern(body.title);
       console.log('Looking for faulty duplicates with pattern:', titlePattern);
 
       // Find all episodes in the same podcast that might be faulty duplicates
@@ -148,9 +190,6 @@ serve(async (req) => {
         }
       }
     }
-
-    // Normalize the title before inserting
-    const normalizedTitle = normalizeTitle(body.title);
 
     // Get MP3 duration from audio URL if available
     let duration = body.duration || 0;
