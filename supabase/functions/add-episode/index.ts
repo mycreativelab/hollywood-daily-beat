@@ -28,6 +28,30 @@ function extractTitlePattern(title: string): string {
   return match ? match[0] : normalized;
 }
 
+// Get MP3 duration from file size (assuming 128kbps bitrate)
+async function getMP3Duration(audioUrl: string): Promise<number> {
+  try {
+    const headResponse = await fetch(audioUrl, { method: 'HEAD' });
+    const contentLength = headResponse.headers.get('content-length');
+    
+    if (!contentLength) {
+      console.log('No content-length header found');
+      return 0;
+    }
+    
+    const fileSizeBytes = parseInt(contentLength, 10);
+    // Assuming 128 kbps bitrate = 16000 bytes per second
+    const bytesPerSecond = 16000;
+    const durationSeconds = Math.round(fileSizeBytes / bytesPerSecond);
+    
+    console.log(`MP3 size: ${fileSizeBytes} bytes, estimated duration: ${durationSeconds} seconds`);
+    return durationSeconds;
+  } catch (error) {
+    console.error('Error getting MP3 duration:', error);
+    return 0;
+  }
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -128,13 +152,19 @@ serve(async (req) => {
     // Normalize the title before inserting
     const normalizedTitle = normalizeTitle(body.title);
 
+    // Get MP3 duration from audio URL if available
+    let duration = body.duration || 0;
+    if (body.audio_url && duration === 0) {
+      duration = await getMP3Duration(body.audio_url);
+    }
+
     // Prepare episode data
     const episodeData = {
       title: normalizedTitle,
       podcast_id: body.podcast_id,
       description: body.description || null,
       audio_url: body.audio_url || null,
-      duration: body.duration || 0,
+      duration: duration,
       episode_number: body.episode_number || null,
       thumbnail: body.thumbnail || null,
       published_at: body.published_at || new Date().toISOString(),
