@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X } from 'lucide-react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, X, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
+import { useToast } from '@/hooks/use-toast';
 
 interface AudioPlayerProps {
   episode: {
@@ -20,10 +21,13 @@ export function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.7);
   const [isMuted, setIsMuted] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (episode && audioRef.current) {
+      setHasError(false);
       setIsPlaying(true);
       audioRef.current.play().catch(() => setIsPlaying(false));
     }
@@ -81,6 +85,28 @@ export function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 
   const encodedAudioUrl = episode.audioUrl ? encodeURI(episode.audioUrl) : undefined;
 
+  const handleAudioError = () => {
+    setHasError(true);
+    setIsPlaying(false);
+    const errorCode = audioRef.current?.error?.code;
+    console.error('Audio error:', {
+      code: errorCode,
+      message: audioRef.current?.error?.message,
+      url: episode.audioUrl
+    });
+    toast({
+      title: 'Audio kann nicht geladen werden',
+      description: 'Der Audio-Link ist nicht öffentlich zugänglich. Bitte im Admin-Bereich einen gültigen Share-Link hinterlegen.',
+      variant: 'destructive',
+    });
+  };
+
+  const openAudioInNewTab = () => {
+    if (episode.audioUrl) {
+      window.open(episode.audioUrl, '_blank');
+    }
+  };
+
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 glass border-t border-border">
       <audio
@@ -89,7 +115,7 @@ export function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
         onEnded={() => setIsPlaying(false)}
-        onError={(e) => console.error('Audio error:', e)}
+        onError={handleAudioError}
       />
       
       <div className="container mx-auto px-4 py-3">
@@ -183,6 +209,19 @@ export function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
               className="w-24"
             />
           </div>
+
+          {/* Error indicator + Open in new tab */}
+          {hasError && (
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="text-destructive hover:text-destructive"
+              onClick={openAudioInNewTab}
+              title="Audio in neuem Tab öffnen"
+            >
+              <ExternalLink className="w-5 h-5" />
+            </Button>
+          )}
 
           {/* Close */}
           <Button 
