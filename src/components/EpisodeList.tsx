@@ -11,6 +11,7 @@ interface Episode {
   episode_number: number | null;
   published_at: string | null;
   podcast_id: string;
+  podcast_title?: string;
 }
 
 interface EpisodeListProps {
@@ -43,9 +44,15 @@ function EpisodeCard({ episode }: { episode: Episode }) {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-background to-primary/20 backdrop-blur-sm" />
         <div className="absolute inset-0 bg-background/40" />
         
-        {/* Episode title as centered text */}
+        {/* Podcast name and episode title as centered text */}
         <div className="absolute inset-0 flex flex-col items-center justify-center p-3 text-center">
-          <h3 className="text-foreground font-display font-semibold text-sm leading-tight line-clamp-3 mb-2">
+          {/* Podcast Name - larger */}
+          <span className="text-primary font-display font-bold text-xs uppercase tracking-wider mb-1 line-clamp-1">
+            {episode.podcast_title || 'Podcast'}
+          </span>
+          
+          {/* Episode Title - smaller */}
+          <h3 className="text-foreground font-display font-medium text-[11px] leading-tight line-clamp-2 mb-2">
             {episode.title}
           </h3>
           
