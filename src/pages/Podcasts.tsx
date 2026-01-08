@@ -9,6 +9,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
+// Import podcast cover images
+import hollywoodWeeklyCover from '@/assets/hollywood-weekly-cover.jpg';
+import regulatoryUpdateCover from '@/assets/regulatory-update-cover.jpg';
+
+// Map podcast titles to their cover images
+const podcastCoverMap: Record<string, string> = {
+  'Hollywood Weekly': hollywoodWeeklyCover,
+  'Regulatory Update': regulatoryUpdateCover,
+};
+
 interface PlayingEpisode {
   id: string;
   title: string;
@@ -85,7 +95,7 @@ function PodcastsContent() {
                   id={podcast.id}
                   title={podcast.title}
                   description={podcast.description}
-                  coverImage={podcast.cover_image}
+                  coverImage={podcastCoverMap[podcast.title] || podcast.cover_image}
                   category={podcast.category}
                   episodeCount={(podcast.episodes as any)?.[0]?.count || 0}
                 />
