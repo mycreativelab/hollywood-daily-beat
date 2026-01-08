@@ -12,12 +12,14 @@ interface Episode {
   published_at: string | null;
   podcast_id: string;
   podcast_title?: string;
+  audio_url?: string | null;
 }
 
 interface EpisodeListProps {
   episodes: Episode[];
   isLoading?: boolean;
   maxSlots?: number;
+  onPlay?: (episode: { id: string; title: string; thumbnail: string | null; audioUrl: string | null; podcastTitle?: string }) => void;
 }
 
 function formatDuration(seconds: number | null): string {
@@ -40,8 +42,31 @@ function extractDate(title: string): string | null {
   return match ? match[0] : null;
 }
 
-function EpisodeCard({ episode }: { episode: Episode }) {
+interface EpisodeCardProps {
+  episode: Episode;
+  onPlay?: (episode: { id: string; title: string; thumbnail: string | null; audioUrl: string | null; podcastTitle?: string }) => void;
+}
+
+function EpisodeCard({ episode, onPlay }: EpisodeCardProps) {
   const { user } = useAuth();
+  
+  const handlePlay = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user) {
+      window.location.href = '/auth';
+      return;
+    }
+    if (onPlay) {
+      onPlay({
+        id: episode.id,
+        title: episode.title,
+        thumbnail: episode.thumbnail,
+        audioUrl: episode.audio_url || null,
+        podcastTitle: episode.podcast_title
+      });
+    }
+  };
   
   return (
     <Link 
@@ -67,9 +92,12 @@ function EpisodeCard({ episode }: { episode: Episode }) {
           </h3>
           
           {/* Play Button */}
-          <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center shadow-md transition-transform duration-300 group-hover:scale-110">
+          <button 
+            onClick={handlePlay}
+            className="w-8 h-8 bg-primary rounded-full flex items-center justify-center shadow-md transition-transform duration-300 group-hover:scale-110"
+          >
             <Play className="w-3.5 h-3.5 text-primary-foreground ml-0.5" />
-          </div>
+          </button>
         </div>
         
         {/* Date badge - bottom left */}
@@ -109,7 +137,7 @@ function PlaceholderCard() {
   );
 }
 
-export function EpisodeList({ episodes, isLoading, maxSlots = 6 }: EpisodeListProps) {
+export function EpisodeList({ episodes, isLoading, maxSlots = 6, onPlay }: EpisodeListProps) {
   if (isLoading) {
     return (
       <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
@@ -132,7 +160,7 @@ export function EpisodeList({ episodes, isLoading, maxSlots = 6 }: EpisodeListPr
     <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
       {slots.map((slot, index) => (
         slot.type === 'episode' ? (
-          <EpisodeCard key={slot.episode.id} episode={slot.episode} />
+          <EpisodeCard key={slot.episode.id} episode={slot.episode} onPlay={onPlay} />
         ) : (
           <PlaceholderCard key={`placeholder-${index}`} />
         )

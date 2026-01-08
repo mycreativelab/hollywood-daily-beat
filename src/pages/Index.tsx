@@ -1,11 +1,23 @@
+import { useState } from 'react';
 import { Header } from '@/components/Header';
 import { HeroBanner } from '@/components/HeroBanner';
 import { EpisodeList } from '@/components/EpisodeList';
 import { Footer } from '@/components/Footer';
+import { AudioPlayer } from '@/components/AudioPlayer';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
+interface PlayingEpisode {
+  id: string;
+  title: string;
+  thumbnail: string | null;
+  audioUrl: string | null;
+  podcastTitle?: string;
+}
+
 const Index = () => {
+  const [playingEpisode, setPlayingEpisode] = useState<PlayingEpisode | null>(null);
+
   // Fetch latest episode for hero banner
   const { data: latestEpisode } = useQuery({
     queryKey: ['latest-episode'],
@@ -43,10 +55,26 @@ const Index = () => {
     },
   });
 
+  const handlePlayEpisode = (episode: PlayingEpisode) => {
+    setPlayingEpisode(episode);
+  };
+
+  const handlePlayFromHero = () => {
+    if (latestEpisode) {
+      setPlayingEpisode({
+        id: latestEpisode.id,
+        title: latestEpisode.title,
+        thumbnail: latestEpisode.thumbnail,
+        audioUrl: latestEpisode.audio_url,
+        podcastTitle: latestEpisode.podcast_title
+      });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <HeroBanner latestEpisode={latestEpisode} />
+      <HeroBanner latestEpisode={latestEpisode} onPlay={handlePlayFromHero} />
       
       {/* Recent Episodes Section */}
       <section className="py-24 relative">
@@ -63,7 +91,11 @@ const Index = () => {
             </div>
           </div>
           
-          <EpisodeList episodes={recentEpisodes || []} isLoading={isLoading} />
+          <EpisodeList 
+            episodes={recentEpisodes || []} 
+            isLoading={isLoading} 
+            onPlay={handlePlayEpisode}
+          />
         </div>
       </section>
 
@@ -101,6 +133,11 @@ const Index = () => {
       </section>
 
       <Footer />
+      
+      <AudioPlayer 
+        episode={playingEpisode} 
+        onClose={() => setPlayingEpisode(null)} 
+      />
     </div>
   );
 };
