@@ -25,18 +25,21 @@ const Index = () => {
     },
   });
 
-  // Fetch recent episodes
+  // Fetch recent episodes with podcast info
   const { data: recentEpisodes, isLoading } = useQuery({
     queryKey: ['recent-episodes'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('episodes')
-        .select('*')
+        .select('*, podcasts(title)')
         .order('published_at', { ascending: false })
         .limit(6);
       
       if (error) throw error;
-      return data;
+      return data.map(episode => ({
+        ...episode,
+        podcast_title: episode.podcasts?.title || 'Podcast'
+      }));
     },
   });
 
