@@ -79,14 +79,17 @@ export function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 
   if (!episode) return null;
 
+  const encodedAudioUrl = episode.audioUrl ? encodeURI(episode.audioUrl) : undefined;
+
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 glass border-t border-border">
       <audio
         ref={audioRef}
-        src={episode.audioUrl || undefined}
+        src={encodedAudioUrl}
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
         onEnded={() => setIsPlaying(false)}
+        onError={(e) => console.error('Audio error:', e)}
       />
       
       <div className="container mx-auto px-4 py-3">
