@@ -75,15 +75,15 @@ function EpisodeCard({ episode }: { episode: Episode }) {
         {/* Date badge - bottom left */}
         {extractDate(episode.title) && (
           <div className="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 rounded bg-background/80 backdrop-blur-sm flex items-center gap-1">
-            <Calendar className="w-2.5 h-2.5 text-primary" />
-            <span className="text-primary text-[10px] font-medium">{extractDate(episode.title)}</span>
+            <Calendar className="w-2.5 h-2.5 text-muted-foreground" />
+            <span className="text-muted-foreground text-[10px] font-medium">{extractDate(episode.title)}</span>
           </div>
         )}
         
         {/* Duration badge - bottom right */}
         <div className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded bg-background/80 backdrop-blur-sm flex items-center gap-1">
-          <Clock className="w-2.5 h-2.5 text-primary" />
-          <span className="text-primary text-[10px] font-medium">{formatDuration(episode.duration)}</span>
+          <Clock className="w-2.5 h-2.5 text-muted-foreground" />
+          <span className="text-muted-foreground text-[10px] font-medium">{formatDuration(episode.duration)}</span>
         </div>
       </div>
     </Link>
