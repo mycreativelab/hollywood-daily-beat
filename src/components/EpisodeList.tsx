@@ -49,7 +49,7 @@ function EpisodeCard({ episode }: { episode: Episode }) {
       className="group block"
     >
       {/* Card with blurred gradient background and text */}
-      <div className="relative aspect-square rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
+      <div className="relative aspect-square rounded-lg overflow-hidden shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
         {/* Blurred gradient background */}
         <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-background to-primary/20 backdrop-blur-sm" />
         <div className="absolute inset-0 bg-background/40" />
