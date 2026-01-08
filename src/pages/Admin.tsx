@@ -6,8 +6,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
-import { Check, X, ArrowLeft, Users, Shield } from 'lucide-react';
+import { Check, X, ArrowLeft, Users, Shield, Music, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { Header } from '@/components/Header';
 
 interface UserWithProfile {
@@ -19,13 +20,33 @@ interface UserWithProfile {
   email?: string;
 }
 
+interface Episode {
+  id: string;
+  title: string;
+  audio_url: string | null;
+  published_at: string | null;
+  podcast: { title: string } | null;
+}
+
+interface ValidationResult {
+  valid: boolean;
+  error?: string;
+  normalizedUrl?: string;
+  contentType?: string;
+}
+
 export default function Admin() {
   const { user } = useAuth();
   const { isAdmin, loading: profileLoading } = useUserProfile();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [users, setUsers] = useState<UserWithProfile[]>([]);
+  const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [loading, setLoading] = useState(true);
+  const [audioUrls, setAudioUrls] = useState<Record<string, string>>({});
+  const [validating, setValidating] = useState<Record<string, boolean>>({});
+  const [validationResults, setValidationResults] = useState<Record<string, ValidationResult>>({});
+  const [saving, setSaving] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     if (!profileLoading && !isAdmin) {
@@ -36,11 +57,11 @@ export default function Admin() {
   useEffect(() => {
     if (isAdmin) {
       fetchUsers();
+      fetchEpisodes();
     }
   }, [isAdmin]);
 
   const fetchUsers = async () => {
-    setLoading(true);
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
@@ -55,6 +76,26 @@ export default function Admin() {
       });
     } else {
       setUsers(data || []);
+    }
+  };
+
+  const fetchEpisodes = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('episodes')
+      .select('id, title, audio_url, published_at, podcast:podcasts(title)')
+      .order('published_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching episodes:', error);
+    } else {
+      setEpisodes(data || []);
+      // Initialize audio URLs
+      const urls: Record<string, string> = {};
+      (data || []).forEach((ep) => {
+        urls[ep.id] = ep.audio_url || '';
+      });
+      setAudioUrls(urls);
     }
     setLoading(false);
   };
@@ -77,6 +118,89 @@ export default function Admin() {
         description: `Benutzer wurde ${approve ? 'freigegeben' : 'gesperrt'}.`,
       });
       fetchUsers();
+    }
+  };
+
+  const validateAudioUrl = async (episodeId: string) => {
+    const url = audioUrls[episodeId];
+    if (!url) {
+      setValidationResults((prev) => ({
+        ...prev,
+        [episodeId]: { valid: false, error: 'URL ist leer' },
+      }));
+      return;
+    }
+
+    setValidating((prev) => ({ ...prev, [episodeId]: true }));
+    setValidationResults((prev) => ({ ...prev, [episodeId]: undefined as any }));
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/validate-audio-url`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url }),
+        }
+      );
+      const result = await response.json();
+      setValidationResults((prev) => ({ ...prev, [episodeId]: result }));
+    } catch (error) {
+      setValidationResults((prev) => ({
+        ...prev,
+        [episodeId]: { valid: false, error: 'Validierung fehlgeschlagen' },
+      }));
+    } finally {
+      setValidating((prev) => ({ ...prev, [episodeId]: false }));
+    }
+  };
+
+  const saveAudioUrl = async (episodeId: string) => {
+    const url = audioUrls[episodeId];
+    if (!url) return;
+
+    setSaving((prev) => ({ ...prev, [episodeId]: true }));
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-update-episode-audio`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session?.access_token}`,
+          },
+          body: JSON.stringify({ episodeId, audioUrl: url }),
+        }
+      );
+      const result = await response.json();
+
+      if (result.success) {
+        toast({
+          title: 'Gespeichert',
+          description: 'Audio-URL wurde aktualisiert.',
+        });
+        setValidationResults((prev) => ({
+          ...prev,
+          [episodeId]: { valid: true, normalizedUrl: result.normalizedUrl },
+        }));
+        fetchEpisodes();
+      } else {
+        toast({
+          title: 'Fehler',
+          description: result.error || 'Speichern fehlgeschlagen',
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      toast({
+        title: 'Fehler',
+        description: 'Speichern fehlgeschlagen',
+        variant: 'destructive',
+      });
+    } finally {
+      setSaving((prev) => ({ ...prev, [episodeId]: false }));
     }
   };
 
@@ -203,6 +327,82 @@ export default function Admin() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Episodes Section */}
+        <Card className="mt-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Music className="w-5 h-5" />
+              Episoden Audio-Links ({episodes.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {episodes.length === 0 ? (
+              <p className="text-muted-foreground text-sm">Keine Episoden vorhanden.</p>
+            ) : (
+              <div className="space-y-4">
+                {episodes.map((ep) => {
+                  const validation = validationResults[ep.id];
+                  const isValidating = validating[ep.id];
+                  const isSaving = saving[ep.id];
+
+                  return (
+                    <div key={ep.id} className="p-4 bg-muted/50 rounded-lg space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium">{ep.title}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {ep.podcast?.title} • {ep.published_at ? new Date(ep.published_at).toLocaleDateString('de-DE') : 'Kein Datum'}
+                          </p>
+                        </div>
+                        {validation && (
+                          <Badge variant={validation.valid ? 'default' : 'destructive'}>
+                            {validation.valid ? (
+                              <><CheckCircle className="w-3 h-3 mr-1" /> OK</>
+                            ) : (
+                              <><AlertCircle className="w-3 h-3 mr-1" /> Fehler</>
+                            )}
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      <div className="flex gap-2">
+                        <Input
+                          value={audioUrls[ep.id] || ''}
+                          onChange={(e) => setAudioUrls((prev) => ({ ...prev, [ep.id]: e.target.value }))}
+                          placeholder="Share-Link zur MP3 (z.B. https://cloud.example.de/s/TOKEN/download)"
+                          className="flex-1"
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => validateAudioUrl(ep.id)}
+                          disabled={isValidating}
+                        >
+                          {isValidating ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Prüfen'}
+                        </Button>
+                        <Button
+                          size="sm"
+                          onClick={() => saveAudioUrl(ep.id)}
+                          disabled={isSaving}
+                        >
+                          {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Speichern'}
+                        </Button>
+                      </div>
+
+                      {validation && !validation.valid && (
+                        <p className="text-xs text-destructive">{validation.error}</p>
+                      )}
+                      {validation && validation.valid && validation.normalizedUrl && (
+                        <p className="text-xs text-muted-foreground">Normalisierte URL: {validation.normalizedUrl}</p>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </main>
     </div>
   );

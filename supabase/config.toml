@@ -2,3 +2,9 @@ project_id = "vugesbmooeilqzluxczt"
 
 [functions.add-episode]
 verify_jwt = false
+
+[functions.validate-audio-url]
+verify_jwt = false
+
+[functions.admin-update-episode-audio]
+verify_jwt = false
