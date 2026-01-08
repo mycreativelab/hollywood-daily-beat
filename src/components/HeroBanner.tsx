@@ -1,4 +1,4 @@
-import { Play, Pause, Clock, Headphones } from 'lucide-react';
+import { Play, Pause, Clock, Calendar, Headphones } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { Link } from 'react-router-dom';
@@ -153,12 +153,13 @@ export function HeroBanner({ latestEpisode }: HeroBannerProps) {
                   {latestEpisode.podcast_title || 'Hollywood Daily'} - Episode {extractEpisodeNumber(latestEpisode.title)}
                 </h3>
                 <div className="flex items-center gap-3 mt-1">
-                  <span className="flex items-center gap-1 text-muted-foreground text-xs">
+                  <span className="flex items-center gap-1 text-primary text-xs">
                     <Clock className="w-3 h-3" />
                     {formatDuration(latestEpisode.duration)}
                   </span>
                   {extractDate(latestEpisode.title) && (
-                    <span className="text-muted-foreground text-xs">
+                    <span className="flex items-center gap-1 text-primary text-xs">
+                      <Calendar className="w-3 h-3" />
                       {extractDate(latestEpisode.title)}
                     </span>
                   )}
