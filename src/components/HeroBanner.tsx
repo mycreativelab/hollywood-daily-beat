@@ -23,6 +23,16 @@ function formatDuration(seconds: number | null | undefined): string {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 }
 
+function extractEpisodeNumber(title: string): string {
+  const match = title.match(/Episode\s*(\d+)/i);
+  return match ? match[1].padStart(2, '0') : '01';
+}
+
+function extractDate(title: string): string {
+  const match = title.match(/(\d{2}\.\d{2}\.\d{2})/);
+  return match ? match[1] : '';
+}
+
 export function HeroBanner({ latestEpisode }: HeroBannerProps) {
   const { user } = useAuth();
   const [isPlaying, setIsPlaying] = useState(false);
@@ -139,17 +149,22 @@ export function HeroBanner({ latestEpisode }: HeroBannerProps) {
               
               {/* Episode Info */}
               <div className="flex-1 min-w-0">
-                <h3 className="text-foreground font-display font-bold text-lg truncate">
-                  {latestEpisode.title}
-                </h3>
-                <p className="text-muted-foreground text-sm truncate mt-1">
-                  {latestEpisode.description || 'Latest episode from mycreativelab'}
+                <p className="text-primary text-sm font-medium">
+                  {latestEpisode.podcast_title || 'Hollywood Daily'}
                 </p>
+                <h3 className="text-foreground font-display font-bold text-lg truncate">
+                  Episode {extractEpisodeNumber(latestEpisode.title)}
+                </h3>
                 <div className="flex items-center gap-3 mt-2">
                   <span className="flex items-center gap-1 text-primary text-xs">
                     <Clock className="w-3 h-3" />
                     {formatDuration(latestEpisode.duration)}
                   </span>
+                  {extractDate(latestEpisode.title) && (
+                    <span className="text-muted-foreground text-xs">
+                      {extractDate(latestEpisode.title)}
+                    </span>
+                  )}
                 </div>
               </div>
               
