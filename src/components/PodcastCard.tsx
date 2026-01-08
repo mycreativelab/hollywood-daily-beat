@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { Play } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 
 interface PodcastCardProps {
@@ -22,9 +21,6 @@ export function PodcastCard({ id, title, description, coverImage, category, epis
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-foreground/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <button className="absolute bottom-4 right-4 w-12 h-12 bg-gradient-hero rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-y-4 group-hover:translate-y-0 shadow-glow">
-            <Play className="w-5 h-5 text-primary-foreground ml-0.5" />
-          </button>
         </div>
         <CardContent className="p-4">
           <span className="inline-block px-2 py-1 text-xs font-medium bg-secondary/20 text-secondary rounded-full mb-2 capitalize">

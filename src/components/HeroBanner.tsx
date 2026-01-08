@@ -1,8 +1,7 @@
-import { Play, Pause, Clock, Calendar, Headphones } from 'lucide-react';
+import { Play, Clock, Calendar, Headphones } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { Link } from 'react-router-dom';
-import { useState, useRef } from 'react';
 
 interface HeroBannerProps {
   latestEpisode?: {
@@ -14,6 +13,7 @@ interface HeroBannerProps {
     thumbnail: string | null;
     duration?: number | null;
   };
+  onPlay?: () => void;
 }
 
 function formatDuration(seconds: number | null | undefined): string {
@@ -33,20 +33,13 @@ function extractDate(title: string): string {
   return match ? match[1] : '';
 }
 
-export function HeroBanner({ latestEpisode }: HeroBannerProps) {
+export function HeroBanner({ latestEpisode, onPlay }: HeroBannerProps) {
   const { user } = useAuth();
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
 
   const handlePlay = () => {
     if (!user) return;
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
+    if (onPlay) {
+      onPlay();
     }
   };
 
@@ -172,11 +165,7 @@ export function HeroBanner({ latestEpisode }: HeroBannerProps) {
                   onClick={handlePlay}
                   className="w-16 h-16 bg-gradient-orange rounded-full flex items-center justify-center play-button flex-shrink-0"
                 >
-                  {isPlaying ? (
-                    <Pause className="w-7 h-7 text-primary-foreground" />
-                  ) : (
-                    <Play className="w-7 h-7 text-primary-foreground ml-1" />
-                  )}
+                  <Play className="w-7 h-7 text-primary-foreground ml-1" />
                 </button>
               ) : (
                 <Button 
@@ -188,10 +177,6 @@ export function HeroBanner({ latestEpisode }: HeroBannerProps) {
               )}
             </div>
           </div>
-          
-          {latestEpisode.audio_url && (
-            <audio ref={audioRef} src={latestEpisode.audio_url} />
-          )}
         </div>
       )}
     </section>
