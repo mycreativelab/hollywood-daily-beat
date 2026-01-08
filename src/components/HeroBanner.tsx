@@ -149,14 +149,11 @@ export function HeroBanner({ latestEpisode }: HeroBannerProps) {
               
               {/* Episode Info */}
               <div className="flex-1 min-w-0">
-                <p className="text-primary text-sm font-medium">
-                  {latestEpisode.podcast_title || 'Hollywood Daily'}
-                </p>
                 <h3 className="text-foreground font-display font-bold text-lg truncate">
-                  Episode {extractEpisodeNumber(latestEpisode.title)}
+                  {latestEpisode.podcast_title || 'Hollywood Daily'} - Episode {extractEpisodeNumber(latestEpisode.title)}
                 </h3>
-                <div className="flex items-center gap-3 mt-2">
-                  <span className="flex items-center gap-1 text-primary text-xs">
+                <div className="flex items-center gap-3 mt-1">
+                  <span className="flex items-center gap-1 text-muted-foreground text-xs">
                     <Clock className="w-3 h-3" />
                     {formatDuration(latestEpisode.duration)}
                   </span>
