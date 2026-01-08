@@ -1,4 +1,4 @@
-import { Play } from 'lucide-react';
+import { Play, Clock, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -30,6 +30,16 @@ function formatDuration(seconds: number | null): string {
   return `${mins} min`;
 }
 
+function extractEpisodeNumber(title: string): string {
+  const match = title.match(/Episode\s*(\d+)/i);
+  return match ? match[1].padStart(2, '0') : '01';
+}
+
+function extractDate(title: string): string | null {
+  const match = title.match(/(\d{2})\.(\d{2})\.(\d{2,4})/);
+  return match ? match[0] : null;
+}
+
 function EpisodeCard({ episode }: { episode: Episode }) {
   const { user } = useAuth();
   
@@ -51,9 +61,9 @@ function EpisodeCard({ episode }: { episode: Episode }) {
             {episode.podcast_title || 'Podcast'}
           </span>
           
-          {/* Episode Title - smaller */}
-          <h3 className="text-foreground font-display font-medium text-[11px] leading-tight line-clamp-2 mb-2">
-            {episode.title}
+          {/* Episode Number - separate */}
+          <h3 className="text-foreground font-display font-medium text-[11px] leading-tight line-clamp-1 mb-2">
+            Episode {extractEpisodeNumber(episode.title)}
           </h3>
           
           {/* Play Button */}
@@ -62,9 +72,18 @@ function EpisodeCard({ episode }: { episode: Episode }) {
           </div>
         </div>
         
-        {/* Duration badge */}
-        <div className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded bg-background/80 backdrop-blur-sm text-foreground text-[10px] font-medium">
-          {formatDuration(episode.duration)}
+        {/* Date badge - bottom left */}
+        {extractDate(episode.title) && (
+          <div className="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 rounded bg-background/80 backdrop-blur-sm flex items-center gap-1">
+            <Calendar className="w-2.5 h-2.5 text-primary" />
+            <span className="text-primary text-[10px] font-medium">{extractDate(episode.title)}</span>
+          </div>
+        )}
+        
+        {/* Duration badge - bottom right */}
+        <div className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded bg-background/80 backdrop-blur-sm flex items-center gap-1">
+          <Clock className="w-2.5 h-2.5 text-primary" />
+          <span className="text-primary text-[10px] font-medium">{formatDuration(episode.duration)}</span>
         </div>
       </div>
     </Link>
