@@ -6,6 +6,28 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Normalize title by removing line breaks and trimming
+function normalizeTitle(title: string): string {
+  return title.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
+// Check if episode data is valid (not a faulty upload)
+function isValidEpisode(data: { audio_url?: string; description?: string; title: string }): boolean {
+  const hasValidAudioUrl = Boolean(data.audio_url && !data.audio_url.includes('undefined.mp3'));
+  const hasDescription = Boolean(data.description && data.description.trim().length > 0);
+  const hasTitleWithoutLineBreaks = !data.title.includes('\n');
+  
+  return hasValidAudioUrl && hasDescription && hasTitleWithoutLineBreaks;
+}
+
+// Extract base title pattern for matching (e.g., "Episode 01 08.01.26" from various formats)
+function extractTitlePattern(title: string): string {
+  const normalized = normalizeTitle(title);
+  // Match pattern like "Episode XX DD.MM.YY" or similar
+  const match = normalized.match(/Episode\s*\d*\s*\d{2}\.\d{2}\.\d{2}/i);
+  return match ? match[0] : normalized;
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -44,9 +66,71 @@ serve(async (req) => {
       });
     }
 
+    // Check if this is a valid episode
+    const isValid = isValidEpisode({
+      audio_url: body.audio_url,
+      description: body.description,
+      title: body.title
+    });
+
+    console.log('Episode validation result:', isValid);
+
+    // If this is a valid episode, clean up faulty duplicates first
+    if (isValid) {
+      const titlePattern = extractTitlePattern(body.title);
+      console.log('Looking for faulty duplicates with pattern:', titlePattern);
+
+      // Find all episodes in the same podcast that might be faulty duplicates
+      const { data: existingEpisodes, error: fetchError } = await supabase
+        .from('episodes')
+        .select('id, title, audio_url, description')
+        .eq('podcast_id', body.podcast_id);
+
+      if (fetchError) {
+        console.error('Error fetching existing episodes:', fetchError);
+      } else if (existingEpisodes && existingEpisodes.length > 0) {
+        // Find faulty episodes that match the title pattern
+        const faultyEpisodes = existingEpisodes.filter(ep => {
+          const epPattern = extractTitlePattern(ep.title);
+          const patternMatches = epPattern === titlePattern;
+          
+          const isFaulty = 
+            (ep.audio_url && ep.audio_url.includes('undefined.mp3')) ||
+            !ep.description ||
+            ep.description.trim().length === 0 ||
+            ep.title.includes('\n');
+          
+          return patternMatches && isFaulty;
+        });
+
+        if (faultyEpisodes.length > 0) {
+          console.log(`Found ${faultyEpisodes.length} faulty duplicate(s) to delete:`, 
+            faultyEpisodes.map(e => ({ id: e.id, title: e.title })));
+
+          // Delete faulty duplicates
+          const idsToDelete = faultyEpisodes.map(ep => ep.id);
+          const { error: deleteError, count } = await supabase
+            .from('episodes')
+            .delete()
+            .in('id', idsToDelete);
+
+          if (deleteError) {
+            console.error('Error deleting faulty episodes:', deleteError);
+          } else {
+            console.log(`Successfully deleted ${count || idsToDelete.length} faulty episode(s)`);
+          }
+        } else {
+          console.log('No faulty duplicates found');
+        }
+      }
+    }
+
+    // Normalize the title before inserting
+    const normalizedTitle = normalizeTitle(body.title);
+
     // Prepare episode data
     const episodeData = {
-      title: body.title,
+      title: normalizedTitle,
       podcast_id: body.podcast_id,
       description: body.description || null,
       audio_url: body.audio_url || null,
