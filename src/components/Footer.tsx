@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Mic2, Instagram, Twitter, Youtube, Mail } from 'lucide-react';
+import { Mic2 } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -19,24 +19,10 @@ export function Footer() {
                 mycreativelab
               </span>
             </Link>
-            <p className="text-muted-foreground max-w-sm mb-8 leading-relaxed">
+            <p className="text-muted-foreground max-w-sm leading-relaxed">
               Creating digital solutions for the film and media industry. 
               Daily podcasts, exclusive content, and creative collaboration.
             </p>
-            <div className="flex gap-3">
-              <a href="#" className="w-11 h-11 bg-muted/50 border border-border/30 rounded-full flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-glow-sm transition-all duration-300">
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a href="#" className="w-11 h-11 bg-muted/50 border border-border/30 rounded-full flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-glow-sm transition-all duration-300">
-                <Twitter className="w-5 h-5" />
-              </a>
-              <a href="#" className="w-11 h-11 bg-muted/50 border border-border/30 rounded-full flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-glow-sm transition-all duration-300">
-                <Youtube className="w-5 h-5" />
-              </a>
-              <a href="#" className="w-11 h-11 bg-muted/50 border border-border/30 rounded-full flex items-center justify-center text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary hover:shadow-glow-sm transition-all duration-300">
-                <Mail className="w-5 h-5" />
-              </a>
-            </div>
           </div>
 
           {/* Navigation */}
