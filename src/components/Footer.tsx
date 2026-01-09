@@ -56,17 +56,17 @@ export function Footer() {
                   hello@mycreativelab.com
                 </a>
               </li>
-              <li className="text-muted-foreground">
-                Los Angeles, CA
-              </li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-border/30 mt-16 pt-8">
-          <p className="text-center text-muted-foreground text-sm">
+        <div className="border-t border-border/30 mt-16 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p className="text-muted-foreground text-sm">
             © {new Date().getFullYear()} mycreativelab. All rights reserved.
           </p>
+          <Link to="/impressum" className="text-muted-foreground hover:text-primary text-sm transition-colors">
+            Impressum
+          </Link>
         </div>
       </div>
     </footer>
