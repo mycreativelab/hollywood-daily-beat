@@ -6,6 +6,7 @@ import { Footer } from '@/components/Footer';
 import { AudioPlayer } from '@/components/AudioPlayer';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface PlayingEpisode {
   id: string;
@@ -17,6 +18,7 @@ interface PlayingEpisode {
 
 const Index = () => {
   const [playingEpisode, setPlayingEpisode] = useState<PlayingEpisode | null>(null);
+  const { t } = useLanguage();
 
   // Fetch latest episode for hero banner
   const { data: latestEpisode } = useQuery({
@@ -84,9 +86,9 @@ const Index = () => {
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between mb-16">
             <div>
-              <span className="text-primary text-sm font-bold uppercase tracking-widest mb-4 block">All Episodes</span>
+              <span className="text-primary text-sm font-bold uppercase tracking-widest mb-4 block">{t.episodes.allEpisodes}</span>
               <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground">
-                Recent Episodes
+                {t.episodes.recentEpisodes}
               </h2>
             </div>
           </div>
@@ -106,17 +108,16 @@ const Index = () => {
         
         <div className="container mx-auto px-4 relative">
           <div className="max-w-4xl mx-auto text-center">
-            <span className="text-primary text-sm font-bold uppercase tracking-widest mb-4 block">About Us</span>
+            <span className="text-primary text-sm font-bold uppercase tracking-widest mb-4 block">{t.footer.aboutUs}</span>
             <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground mb-8">
               <span className="text-gradient">mycreativelab</span>
             </h2>
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 leading-relaxed">
-              We create <span className="text-primary font-semibold">digital solutions</span> for the film and media industry. 
-              From podcasts to production tools, we collaborate on any kind of digital work that brings your creative vision to life.
+              {t.footer.description}
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <div className="px-6 py-3 bg-primary/10 border border-primary/30 rounded-full">
-                <span className="text-primary font-semibold">Podcasts</span>
+                <span className="text-primary font-semibold">{t.nav.podcasts}</span>
               </div>
               <div className="px-6 py-3 bg-muted rounded-full border border-border/50">
                 <span className="text-foreground font-medium">Film Production</span>

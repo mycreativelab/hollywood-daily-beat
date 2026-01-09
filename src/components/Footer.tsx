@@ -1,7 +1,10 @@
 import { Link } from 'react-router-dom';
 import { Mic2 } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export function Footer() {
+  const { t } = useLanguage();
+
   return (
     <footer className="bg-card border-t border-border/30 py-20 relative overflow-hidden">
       {/* Decorative gradient */}
@@ -20,28 +23,27 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-muted-foreground max-w-sm leading-relaxed">
-              Creating digital solutions for the film and media industry. 
-              Daily podcasts, exclusive content, and creative collaboration.
+              {t.footer.description}
             </p>
           </div>
 
           {/* Navigation */}
           <div>
-            <h3 className="font-display font-semibold text-foreground mb-4">Navigation</h3>
+            <h3 className="font-display font-semibold text-foreground mb-4">{t.footer.navigation}</h3>
             <ul className="space-y-3">
               <li>
                 <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">
-                  Home
+                  {t.nav.home}
                 </Link>
               </li>
               <li>
                 <Link to="/podcasts" className="text-muted-foreground hover:text-primary transition-colors">
-                  Podcasts
+                  {t.nav.podcasts}
                 </Link>
               </li>
               <li>
                 <Link to="/about" className="text-muted-foreground hover:text-primary transition-colors">
-                  About Us
+                  {t.footer.aboutUs}
                 </Link>
               </li>
             </ul>
@@ -49,7 +51,7 @@ export function Footer() {
 
           {/* Contact */}
           <div>
-            <h3 className="font-display font-semibold text-foreground mb-4">Contact</h3>
+            <h3 className="font-display font-semibold text-foreground mb-4">{t.footer.contact}</h3>
             <ul className="space-y-3">
               <li>
                 <a href="mailto:hello@mycreativelab.de" className="text-muted-foreground hover:text-primary transition-colors">
@@ -62,7 +64,7 @@ export function Footer() {
 
         <div className="border-t border-border/30 mt-16 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-muted-foreground text-sm">
-            © {new Date().getFullYear()} mycreativelab. All rights reserved.
+            © {new Date().getFullYear()} mycreativelab. {t.footer.allRightsReserved}
           </p>
           <div className="flex gap-6">
             <Link to="/datenschutz" className="text-muted-foreground hover:text-primary text-sm transition-colors">
