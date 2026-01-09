@@ -220,10 +220,30 @@ serve(async (req) => {
       }
     }
 
+    // Determine audio URL - use provided one or generate from Nextcloud
+    let audioUrl = body.audio_url || '';
+    
+    // Check if provided audio URL is invalid (missing or contains 'undefined')
+    const needsAutoUrl = !audioUrl || audioUrl.includes('undefined');
+    
+    if (needsAutoUrl) {
+      console.log('No valid audio_url provided, generating from Nextcloud...');
+      audioUrl = buildNextcloudAudioUrl(normalizedTitle);
+      console.log('Generated Nextcloud audio URL:', audioUrl);
+      
+      // Validate the generated URL
+      if (audioUrl) {
+        const isValid = await validateAudioUrl(audioUrl);
+        if (!isValid) {
+          console.warn('Generated audio URL is not accessible, but continuing anyway');
+        }
+      }
+    }
+
     // Get MP3 duration from audio URL if available
     let duration = body.duration || 0;
-    if (body.audio_url && duration === 0) {
-      duration = await getMP3Duration(body.audio_url);
+    if (audioUrl && duration === 0) {
+      duration = await getMP3Duration(audioUrl);
     }
 
     // Prepare episode data
@@ -231,7 +251,7 @@ serve(async (req) => {
       title: normalizedTitle,
       podcast_id: body.podcast_id,
       description: body.description || null,
-      audio_url: body.audio_url || null,
+      audio_url: audioUrl || null,
       duration: duration,
       episode_number: body.episode_number || null,
       thumbnail: body.thumbnail || null,
