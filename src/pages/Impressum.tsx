@@ -25,7 +25,7 @@ const Impressum = () => {
             <section>
               <h2 className="font-display text-2xl font-semibold text-foreground mb-4">Kontakt</h2>
               <p className="text-muted-foreground">
-                E-Mail: hello@mycreativelab.com
+                E-Mail: hello@mycreativelab.de
               </p>
             </section>
 
