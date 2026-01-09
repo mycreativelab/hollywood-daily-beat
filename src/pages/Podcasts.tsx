@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Import podcast cover images
 import hollywoodWeeklyCover from '@/assets/hollywood-weekly-cover.jpg';
@@ -30,6 +31,7 @@ interface PlayingEpisode {
 function PodcastsContent() {
   const [searchQuery, setSearchQuery] = useState('');
   const [playingEpisode, setPlayingEpisode] = useState<PlayingEpisode | null>(null);
+  const { t } = useLanguage();
 
   const { data: podcasts, isLoading } = useQuery({
     queryKey: ['podcasts'],
@@ -61,10 +63,10 @@ function PodcastsContent() {
           {/* Header */}
           <div className="mb-12">
             <h1 className="text-4xl md:text-5xl font-display font-bold text-foreground mb-4">
-              All Podcasts
+              {t.episodes.allEpisodes}
             </h1>
             <p className="text-muted-foreground max-w-2xl">
-              Explore our collection of podcasts covering Hollywood news, film reviews, and creative content.
+              {t.hero.description}
             </p>
           </div>
 
@@ -73,7 +75,7 @@ function PodcastsContent() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Search podcasts..."
+              placeholder={t.episodes.searchPlaceholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-10"
@@ -103,7 +105,7 @@ function PodcastsContent() {
             </div>
           ) : (
             <div className="text-center py-12">
-              <p className="text-muted-foreground">No podcasts found matching your search.</p>
+              <p className="text-muted-foreground">{t.episodes.noPodcastsFound}</p>
             </div>
           )}
         </div>

@@ -1,19 +1,25 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Mic2, Shield } from 'lucide-react';
+import { Menu, X, Mic2, Shield, Globe } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { profile, isAdmin } = useUserProfile();
+  const { language, setLanguage, t } = useLanguage();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
+  };
+
+  const toggleLanguage = () => {
+    setLanguage(language === 'en' ? 'de' : 'en');
   };
 
   return (
@@ -33,18 +39,27 @@ export function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
             <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors font-medium uppercase text-sm tracking-wider">
-              Home
+              {t.nav.home}
             </Link>
             <Link to="/podcasts" className="text-muted-foreground hover:text-foreground transition-colors font-medium uppercase text-sm tracking-wider">
-              Podcasts
+              {t.nav.podcasts}
             </Link>
             <Link to="/about" className="text-muted-foreground hover:text-foreground transition-colors font-medium uppercase text-sm tracking-wider">
-              About
+              {t.nav.about}
             </Link>
           </nav>
 
-          {/* Auth Buttons */}
+          {/* Auth Buttons & Language */}
           <div className="hidden md:flex items-center gap-4">
+            {/* Language Toggle */}
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border/50 hover:border-primary/50 hover:bg-primary/5 transition-all text-sm font-medium text-muted-foreground hover:text-foreground"
+            >
+              <Globe className="w-4 h-4" />
+              <span>{language === 'en' ? 'DE' : 'EN'}</span>
+            </button>
+
             {user ? (
               <>
                 {isAdmin && (
@@ -67,7 +82,7 @@ export function Header() {
                   onClick={handleSignOut}
                   className="border-primary text-primary hover:bg-primary hover:text-primary-foreground rounded-full"
                 >
-                  Sign Out
+                  {t.nav.signOut}
                 </Button>
               </>
             ) : (
@@ -75,7 +90,7 @@ export function Header() {
                 asChild
                 className="bg-gradient-orange hover:shadow-glow text-primary-foreground rounded-full px-6"
               >
-                <Link to="/auth">Subscribe</Link>
+                <Link to="/auth">{t.nav.subscribe}</Link>
               </Button>
             )}
           </div>
@@ -98,22 +113,32 @@ export function Header() {
                 className="text-muted-foreground hover:text-foreground transition-colors py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Home
+                {t.nav.home}
               </Link>
               <Link 
                 to="/podcasts" 
                 className="text-muted-foreground hover:text-foreground transition-colors py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Podcasts
+                {t.nav.podcasts}
               </Link>
               <Link 
                 to="/about" 
                 className="text-muted-foreground hover:text-foreground transition-colors py-2"
                 onClick={() => setIsMenuOpen(false)}
               >
-                About
+                {t.nav.about}
               </Link>
+
+              {/* Mobile Language Toggle */}
+              <button
+                onClick={toggleLanguage}
+                className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors py-2"
+              >
+                <Globe className="w-4 h-4" />
+                <span>{language === 'en' ? 'Deutsch' : 'English'}</span>
+              </button>
+
               {user ? (
                 <>
                   <span className="text-sm text-muted-foreground py-2">
@@ -126,7 +151,7 @@ export function Header() {
                       onClick={() => setIsMenuOpen(false)}
                     >
                       <Shield className="w-4 h-4" />
-                      Admin
+                      {t.nav.admin}
                     </Link>
                   )}
                   <Button
@@ -137,7 +162,7 @@ export function Header() {
                     }}
                     className="border-primary text-primary hover:bg-primary hover:text-primary-foreground"
                   >
-                    Sign Out
+                    {t.nav.signOut}
                   </Button>
                 </>
               ) : (
@@ -145,7 +170,7 @@ export function Header() {
                   asChild
                   className="bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
-                  <Link to="/auth" onClick={() => setIsMenuOpen(false)}>Subscribe</Link>
+                  <Link to="/auth" onClick={() => setIsMenuOpen(false)}>{t.nav.subscribe}</Link>
                 </Button>
               )}
             </nav>

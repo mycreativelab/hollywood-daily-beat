@@ -2,6 +2,7 @@ import { Play, Clock, Calendar, Headphones } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface HeroBannerProps {
   latestEpisode?: {
@@ -35,6 +36,7 @@ function extractDate(title: string): string {
 
 export function HeroBanner({ latestEpisode, onPlay }: HeroBannerProps) {
   const { user } = useAuth();
+  const { t } = useLanguage();
 
   const handlePlay = () => {
     if (!user) return;
@@ -66,20 +68,19 @@ export function HeroBanner({ latestEpisode, onPlay }: HeroBannerProps) {
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/30 text-primary text-sm font-medium mb-8 animate-slide-up">
             <Headphones className="w-4 h-4" />
-            <span>mycreativelab Podcast</span>
+            <span>{t.hero.badge}</span>
           </div>
           
           {/* Main heading with gradient text */}
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-display font-bold mb-6 animate-slide-up-delay-1 leading-tight">
-            <span className="text-gradient">Content is</span>
+            <span className="text-gradient">{t.hero.heading1}</span>
             <br />
-            <span className="text-foreground">King</span>
+            <span className="text-foreground">{t.hero.heading2}</span>
           </h1>
           
           {/* Description */}
           <p className="text-xl md:text-2xl text-muted-foreground max-w-2xl mb-10 animate-slide-up-delay-2 leading-relaxed">
-            Creating digital solutions for the <span className="text-primary font-medium">film and media industry</span>. 
-            Daily Hollywood news, insights, and creative collaborations.
+            {t.hero.description}
           </p>
           
           {/* CTA Buttons */}
@@ -92,7 +93,7 @@ export function HeroBanner({ latestEpisode, onPlay }: HeroBannerProps) {
               >
                 <Link to="/podcasts" className="flex items-center gap-3">
                   <Play className="w-6 h-6" />
-                  Browse Episodes
+                  {t.hero.browseEpisodes}
                 </Link>
               </Button>
             ) : (
@@ -103,7 +104,7 @@ export function HeroBanner({ latestEpisode, onPlay }: HeroBannerProps) {
               >
                 <Link to="/auth" className="flex items-center gap-3">
                   <Play className="w-6 h-6" />
-                  Start Listening
+                  {t.hero.startListening}
                 </Link>
               </Button>
             )}
@@ -114,7 +115,7 @@ export function HeroBanner({ latestEpisode, onPlay }: HeroBannerProps) {
               className="border-border/50 hover:border-primary/50 hover:bg-primary/5 px-10 py-7 rounded-full text-lg font-semibold transition-all duration-300"
               asChild
             >
-              <Link to="/about">Learn More</Link>
+              <Link to="/about">{t.hero.learnMore}</Link>
             </Button>
           </div>
         </div>
@@ -127,7 +128,7 @@ export function HeroBanner({ latestEpisode, onPlay }: HeroBannerProps) {
             <div className="flex items-center gap-6 py-5">
               {/* Orange accent label */}
               <span className="hidden md:block text-primary text-xs font-bold uppercase tracking-widest">
-                Latest Episode
+                {t.hero.latestEpisode}
               </span>
               
               {/* Thumbnail with orange border */}
@@ -172,7 +173,7 @@ export function HeroBanner({ latestEpisode, onPlay }: HeroBannerProps) {
                   asChild
                   className="bg-gradient-orange hover:shadow-glow text-primary-foreground rounded-full px-6"
                 >
-                  <Link to="/auth">Sign in to Play</Link>
+                  <Link to="/auth">{t.hero.signInToPlay}</Link>
                 </Button>
               )}
             </div>

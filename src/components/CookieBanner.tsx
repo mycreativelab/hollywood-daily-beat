@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const COOKIE_CONSENT_KEY = 'cookie-consent';
 
@@ -10,6 +10,7 @@ type ConsentStatus = 'accepted' | 'rejected' | null;
 export function CookieBanner() {
   const [consentStatus, setConsentStatus] = useState<ConsentStatus>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const stored = localStorage.getItem(COOKIE_CONSENT_KEY);
@@ -41,16 +42,15 @@ export function CookieBanner() {
           <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
             <div className="flex-1">
               <h3 className="font-display font-semibold text-foreground mb-2">
-                Cookie-Einstellungen
+                {t.cookies.title}
               </h3>
               <p className="text-muted-foreground text-sm leading-relaxed">
-                Wir verwenden Cookies, um Ihnen die bestmögliche Erfahrung auf unserer Website zu bieten. 
-                Einige Cookies sind technisch notwendig, andere helfen uns, die Website zu verbessern.{' '}
+                {t.cookies.description}{' '}
                 <Link 
                   to="/datenschutz" 
                   className="text-primary hover:underline"
                 >
-                  Mehr erfahren
+                  {t.cookies.learnMore}
                 </Link>
               </p>
             </div>
@@ -60,13 +60,13 @@ export function CookieBanner() {
                 onClick={handleReject}
                 className="w-full sm:w-auto"
               >
-                Nur notwendige
+                {t.cookies.onlyNecessary}
               </Button>
               <Button
                 onClick={handleAccept}
                 className="w-full sm:w-auto bg-primary hover:bg-primary/90"
               >
-                Alle akzeptieren
+                {t.cookies.acceptAll}
               </Button>
             </div>
           </div>
