@@ -83,7 +83,7 @@ export function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
 
   if (!episode) return null;
 
-  const encodedAudioUrl = episode.audioUrl ? encodeURI(episode.audioUrl) : undefined;
+  const encodedAudioUrl = episode.audioUrl || undefined;
 
   const handleAudioError = () => {
     setHasError(true);
