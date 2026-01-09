@@ -86,7 +86,7 @@ const Datenschutz = () => {
                 Max Mustermann<br />
                 Musterstraße 123<br />
                 12345 Musterstadt<br /><br />
-                E-Mail: hello@mycreativelab.com
+                E-Mail: hello@mycreativelab.de
               </p>
               <p className="text-muted-foreground mt-4">
                 Verantwortliche Stelle ist die natürliche oder juristische Person, die allein oder gemeinsam mit anderen 

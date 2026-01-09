@@ -52,8 +52,8 @@ export function Footer() {
             <h3 className="font-display font-semibold text-foreground mb-4">Contact</h3>
             <ul className="space-y-3">
               <li>
-                <a href="mailto:hello@mycreativelab.com" className="text-muted-foreground hover:text-primary transition-colors">
-                  hello@mycreativelab.com
+                <a href="mailto:hello@mycreativelab.de" className="text-muted-foreground hover:text-primary transition-colors">
+                  hello@mycreativelab.de
                 </a>
               </li>
             </ul>
