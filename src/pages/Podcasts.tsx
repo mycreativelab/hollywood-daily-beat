@@ -12,11 +12,13 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 // Import podcast cover images
 import hollywoodWeeklyCover from '@/assets/hollywood-weekly-cover.jpg';
+import hollywoodDailyCover from '@/assets/hollywood-daily-cover.jpg';
 import regulatoryUpdateCover from '@/assets/regulatory-update-cover.jpg';
 
 // Map podcast titles to their cover images
 const podcastCoverMap: Record<string, string> = {
   'Hollywood Weekly': hollywoodWeeklyCover,
+  'Hollywood Daily': hollywoodDailyCover,
   'Regulatory Update': regulatoryUpdateCover,
 };
 
