@@ -64,9 +64,14 @@ export function Footer() {
           <p className="text-muted-foreground text-sm">
             © {new Date().getFullYear()} mycreativelab. All rights reserved.
           </p>
-          <Link to="/impressum" className="text-muted-foreground hover:text-primary text-sm transition-colors">
-            Impressum
-          </Link>
+          <div className="flex gap-6">
+            <Link to="/datenschutz" className="text-muted-foreground hover:text-primary text-sm transition-colors">
+              Datenschutz
+            </Link>
+            <Link to="/impressum" className="text-muted-foreground hover:text-primary text-sm transition-colors">
+              Impressum
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
