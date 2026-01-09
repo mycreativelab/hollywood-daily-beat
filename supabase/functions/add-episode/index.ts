@@ -11,6 +11,35 @@ function normalizeTitle(title: string): string {
   return title.replace(/\n/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
+// Build Nextcloud audio URL from episode title
+function buildNextcloudAudioUrl(title: string): string {
+  const baseUrl = Deno.env.get('NEXTCLOUD_BASE_URL');
+  const shareToken = Deno.env.get('NEXTCLOUD_SHARE_TOKEN');
+  
+  if (!baseUrl || !shareToken) {
+    console.error('Nextcloud secrets not configured');
+    return '';
+  }
+  
+  // Encode the filename for URL (title + .mp3)
+  const filename = encodeURIComponent(`${title}.mp3`);
+  return `${baseUrl}/s/${shareToken}/download?path=%2F&files=${filename}`;
+}
+
+// Validate if audio URL is accessible
+async function validateAudioUrl(url: string): Promise<boolean> {
+  try {
+    const response = await fetch(url, { method: 'HEAD' });
+    const contentType = response.headers.get('content-type') || '';
+    const isAudio = contentType.includes('audio') || contentType.includes('octet-stream');
+    console.log(`Audio URL validation: ${response.status}, Content-Type: ${contentType}, isAudio: ${isAudio}`);
+    return response.ok && isAudio;
+  } catch (error) {
+    console.error('Audio URL validation failed:', error);
+    return false;
+  }
+}
+
 // Check if episode data is valid (not a faulty upload)
 function isValidEpisode(data: { audio_url?: string; description?: string; title: string }): boolean {
   const hasValidAudioUrl = Boolean(data.audio_url && !data.audio_url.includes('undefined.mp3'));
