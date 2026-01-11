@@ -99,6 +99,9 @@ export default function About() {
                 <span className="px-4 py-2 bg-card border border-border rounded-full text-sm font-medium">
                   🇩🇪 German Film News
                 </span>
+                <span className="px-4 py-2 bg-card border border-border rounded-full text-sm font-medium">
+                  📋 Regulatory Update
+                </span>
               </div>
             </div>
           </div>
