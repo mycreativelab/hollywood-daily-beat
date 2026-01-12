@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.admin-update-episode-audio]
 verify_jwt = false
+
+[functions.fix-episode-durations]
+verify_jwt = false
