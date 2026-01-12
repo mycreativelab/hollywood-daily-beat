@@ -55,8 +55,8 @@ Deno.serve(async (req) => {
 
     const results: { episode: string; audioUrl: string; duration: number; updated: boolean }[] = [];
 
-    // Episode 1: c782a9a4-1e2d-4c71-9f03-02cc8c6f36c9 - nur Duration berechnen
-    const episode1Id = "c782a9a4-1e2d-4c71-9f03-02cc8c6f36c9";
+    // Episode 1: c782a9a4-86ce-4c90-a325-d08d7f0f664b - nur Duration berechnen
+    const episode1Id = "c782a9a4-86ce-4c90-a325-d08d7f0f664b";
     const episode1AudioUrl = "https://cloud.allenberg.de/s/4Jfio3HiJC6MtXD/download";
     
     console.log("Calculating duration for Episode 1...");
@@ -78,8 +78,8 @@ Deno.serve(async (req) => {
       results.push({ episode: "Episode 1", audioUrl: episode1AudioUrl, duration: 0, updated: false });
     }
 
-    // Episode 2: 6423d98a-1058-4f70-a42e-12f0a6a54ee4 - Audio-URL korrigieren + Duration berechnen
-    const episode2Id = "6423d98a-1058-4f70-a42e-12f0a6a54ee4";
+    // Episode 2: 6423d98a-3b1a-4e2b-871c-c0cac50d8aba - Audio-URL korrigieren + Duration berechnen
+    const episode2Id = "6423d98a-3b1a-4e2b-871c-c0cac50d8aba";
     const episode2NewAudioUrl = "https://cloud.allenberg.de/s/acA24q3BMkMFbCy/download?path=%2F&files=Episode%2002%2011.01.26.mp3";
     
     console.log("Calculating duration for Episode 2...");
