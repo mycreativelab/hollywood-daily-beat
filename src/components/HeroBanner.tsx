@@ -13,6 +13,7 @@ interface HeroBannerProps {
     audio_url: string | null;
     thumbnail: string | null;
     duration?: number | null;
+    published_at?: string | null;
   };
   onPlay?: () => void;
 }
@@ -29,9 +30,15 @@ function extractEpisodeNumber(title: string): string {
   return match ? match[1].padStart(2, '0') : '01';
 }
 
-function extractDate(title: string): string {
-  const match = title.match(/(\d{2}\.\d{2}\.\d{2})/);
-  return match ? match[1] : '';
+function formatPublishedDate(publishedAt: string | null | undefined): string {
+  if (!publishedAt) return '';
+  const date = new Date(publishedAt);
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const day = days[date.getDay()];
+  const dayNum = date.getDate().toString().padStart(2, '0');
+  const month = months[date.getMonth()];
+  return `${day}. ${dayNum}. ${month}`;
 }
 
 export function HeroBanner({ latestEpisode, onPlay }: HeroBannerProps) {
@@ -144,19 +151,16 @@ export function HeroBanner({ latestEpisode, onPlay }: HeroBannerProps) {
               {/* Episode Info */}
               <div className="flex-1 min-w-0">
                 <h3 className="text-foreground font-display font-bold text-lg truncate">
-                  {latestEpisode.podcast_title || 'Hollywood Daily'} - Episode {extractEpisodeNumber(latestEpisode.title)}
+                  {latestEpisode.podcast_title || 'Hollywood Daily'} - {formatPublishedDate(latestEpisode.published_at)}
                 </h3>
                 <div className="flex items-center gap-3 mt-1">
                   <span className="flex items-center gap-1 text-primary text-xs">
                     <Clock className="w-3 h-3" />
                     {formatDuration(latestEpisode.duration)}
                   </span>
-                  {extractDate(latestEpisode.title) && (
-                    <span className="flex items-center gap-1 text-primary text-xs">
-                      <Calendar className="w-3 h-3" />
-                      {extractDate(latestEpisode.title)}
-                    </span>
-                  )}
+                  <span className="flex items-center gap-1 text-primary text-xs">
+                    EP {extractEpisodeNumber(latestEpisode.title)}
+                  </span>
                 </div>
               </div>
               
