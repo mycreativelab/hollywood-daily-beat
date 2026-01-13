@@ -37,9 +37,15 @@ function extractEpisodeNumber(title: string): string {
   return match ? match[1].padStart(2, '0') : '01';
 }
 
-function extractDate(title: string): string | null {
-  const match = title.match(/(\d{2})\.(\d{2})\.(\d{2,4})/);
-  return match ? match[0] : null;
+function formatPublishedDate(publishedAt: string | null): string {
+  if (!publishedAt) return '';
+  const date = new Date(publishedAt);
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const day = days[date.getDay()];
+  const dayNum = date.getDate().toString().padStart(2, '0');
+  const month = months[date.getMonth()];
+  return `${day}. ${dayNum}. ${month}`;
 }
 
 interface EpisodeCardProps {
@@ -79,16 +85,16 @@ function EpisodeCard({ episode, onPlay }: EpisodeCardProps) {
         <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-background to-primary/20 backdrop-blur-sm" />
         <div className="absolute inset-0 bg-background/40" />
         
-        {/* Podcast name and episode title as centered text */}
+        {/* Podcast name and date as centered text */}
         <div className="absolute inset-0 flex flex-col items-center justify-center p-3 text-center">
           {/* Podcast Name - larger */}
           <span className="text-primary font-display font-bold text-xs uppercase tracking-wider mb-1 line-clamp-1">
             {episode.podcast_title || 'Podcast'}
           </span>
           
-          {/* Episode Number - separate */}
+          {/* Date from published_at */}
           <h3 className="text-foreground font-display font-medium text-[11px] leading-tight line-clamp-1 mb-2">
-            Episode {extractEpisodeNumber(episode.title)}
+            {formatPublishedDate(episode.published_at)}
           </h3>
           
           {/* Play Button */}
@@ -100,13 +106,10 @@ function EpisodeCard({ episode, onPlay }: EpisodeCardProps) {
           </button>
         </div>
         
-        {/* Date badge - bottom left */}
-        {extractDate(episode.title) && (
-          <div className="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 rounded bg-background/80 backdrop-blur-sm flex items-center gap-1">
-            <Calendar className="w-2.5 h-2.5 text-muted-foreground" />
-            <span className="text-muted-foreground text-[10px] font-medium">{extractDate(episode.title)}</span>
-          </div>
-        )}
+        {/* Episode number badge - bottom left */}
+        <div className="absolute bottom-1.5 left-1.5 px-1.5 py-0.5 rounded bg-background/80 backdrop-blur-sm flex items-center gap-1">
+          <span className="text-muted-foreground text-[10px] font-medium">EP {extractEpisodeNumber(episode.title)}</span>
+        </div>
         
         {/* Duration badge - bottom right */}
         <div className="absolute bottom-1.5 right-1.5 px-1.5 py-0.5 rounded bg-background/80 backdrop-blur-sm flex items-center gap-1">

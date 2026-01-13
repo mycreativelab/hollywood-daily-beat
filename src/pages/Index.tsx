@@ -34,7 +34,8 @@ const Index = () => {
       if (error) throw error;
       return {
         ...data,
-        podcast_title: data.podcasts?.title
+        podcast_title: data.podcasts?.title,
+        published_at: data.published_at
       };
     },
   });
