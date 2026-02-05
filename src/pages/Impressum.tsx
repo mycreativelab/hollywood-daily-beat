@@ -15,9 +15,9 @@ const Impressum = () => {
               <h2 className="font-display text-2xl font-semibold text-foreground mb-4">Angaben gemäß § 5 TMG</h2>
               <p className="text-muted-foreground">
                 mycreativelab<br />
-                Max Mustermann<br />
-                Musterstraße 123<br />
-                12345 Musterstadt<br />
+                Clemens Szczesny<br />
+                Karlstraße 9<br />
+                71638 Ludwigsburg<br />
                 Deutschland
               </p>
             </section>
@@ -32,9 +32,9 @@ const Impressum = () => {
             <section>
               <h2 className="font-display text-2xl font-semibold text-foreground mb-4">Verantwortlich für den Inhalt nach § 55 Abs. 2 RStV</h2>
               <p className="text-muted-foreground">
-                Max Mustermann<br />
-                Musterstraße 123<br />
-                12345 Musterstadt
+                Clemens Szczesny<br />
+                Karlstraße 9<br />
+                71638 Ludwigsburg
               </p>
             </section>
 
