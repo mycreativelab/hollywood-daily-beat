@@ -38,8 +38,17 @@ export function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
         podcastTitle: episode.podcastTitle
       };
       localStorage.setItem('podcast-playback-state', JSON.stringify(state));
+      
+      // Save progress for this episode (for progress bars on cards)
+      if (duration > 0) {
+        const progressData = JSON.parse(
+          localStorage.getItem('episode-progress') || '{}'
+        );
+        progressData[episode.id] = { currentTime, duration };
+        localStorage.setItem('episode-progress', JSON.stringify(progressData));
+      }
     }
-  }, [currentTime, episode]);
+  }, [currentTime, duration, episode]);
 
   // Load episode and restore position
   useEffect(() => {

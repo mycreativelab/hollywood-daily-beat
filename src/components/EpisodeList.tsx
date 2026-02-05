@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Play, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -79,6 +80,18 @@ interface EpisodeCardProps {
 function EpisodeCard({ episode, onPlay }: EpisodeCardProps) {
   const { user } = useAuth();
   const { language } = useLanguage();
+  const [progress, setProgress] = useState(0);
+
+  // Load progress from localStorage
+  useEffect(() => {
+    const progressData = JSON.parse(
+      localStorage.getItem('episode-progress') || '{}'
+    );
+    const episodeProgress = progressData[episode.id];
+    if (episodeProgress && episodeProgress.duration > 0) {
+      setProgress((episodeProgress.currentTime / episodeProgress.duration) * 100);
+    }
+  }, [episode.id]);
   
   const handlePlay = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -140,6 +153,16 @@ function EpisodeCard({ episode, onPlay }: EpisodeCardProps) {
           <Clock className="w-2.5 h-2.5 text-muted-foreground" />
           <span className="text-muted-foreground text-[10px] font-medium">{formatDuration(episode.duration)}</span>
         </div>
+        
+        {/* Progress bar - shows listening progress */}
+        {progress > 0 && (
+          <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted/50 rounded-b-lg overflow-hidden">
+            <div 
+              className="h-full bg-primary transition-all duration-300"
+              style={{ width: `${Math.min(progress, 100)}%` }}
+            />
+          </div>
+        )}
       </div>
     </Link>
   );
