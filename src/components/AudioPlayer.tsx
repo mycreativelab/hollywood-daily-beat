@@ -22,6 +22,7 @@ export function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
   const [volume, setVolume] = useState(0.7);
   const [isMuted, setIsMuted] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [playbackRate, setPlaybackRate] = useState(1);
   const audioRef = useRef<HTMLAudioElement>(null);
   const { toast } = useToast();
 
@@ -38,6 +39,19 @@ export function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
       audioRef.current.volume = isMuted ? 0 : volume;
     }
   }, [volume, isMuted]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.playbackRate = playbackRate;
+    }
+  }, [playbackRate]);
+
+  const cyclePlaybackRate = () => {
+    const rates = [0.5, 1, 1.5, 2];
+    const currentIndex = rates.indexOf(playbackRate);
+    const nextIndex = (currentIndex + 1) % rates.length;
+    setPlaybackRate(rates[nextIndex]);
+  };
 
   const handleTimeUpdate = () => {
     if (audioRef.current) {
@@ -209,6 +223,17 @@ export function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
               className="w-24"
             />
           </div>
+
+          {/* Playback Speed */}
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className="text-muted-foreground hover:text-foreground min-w-[3rem] text-xs font-medium"
+            onClick={cyclePlaybackRate}
+            title="Wiedergabegeschwindigkeit"
+          >
+            {playbackRate}x
+          </Button>
 
           {/* Error indicator + Open in new tab */}
           {hasError && (
