@@ -1,43 +1,15 @@
-import { useState, useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { HeroBanner } from '@/components/HeroBanner';
 import { EpisodeList } from '@/components/EpisodeList';
 import { Footer } from '@/components/Footer';
-import { AudioPlayer } from '@/components/AudioPlayer';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
-
-interface PlayingEpisode {
-  id: string;
-  title: string;
-  thumbnail: string | null;
-  audioUrl: string | null;
-  podcastTitle?: string;
-}
+import { useAudio, PlayingEpisode } from '@/contexts/AudioContext';
 
 const Index = () => {
-  const [playingEpisode, setPlayingEpisode] = useState<PlayingEpisode | null>(null);
   const { t } = useLanguage();
-
-  // Restore saved playback session on mount
-  useEffect(() => {
-    const saved = localStorage.getItem('podcast-playback-state');
-    if (saved) {
-      try {
-        const state = JSON.parse(saved);
-        setPlayingEpisode({
-          id: state.episodeId,
-          title: state.episodeTitle,
-          thumbnail: state.thumbnail,
-          audioUrl: state.audioUrl,
-          podcastTitle: state.podcastTitle
-        });
-      } catch (e) {
-        console.error('Failed to restore playback state');
-      }
-    }
-  }, []);
+  const { setPlayingEpisode, setIsPlaying } = useAudio();
 
   // Fetch latest episode for hero banner
   const { data: latestEpisode } = useQuery({
@@ -79,6 +51,7 @@ const Index = () => {
 
   const handlePlayEpisode = (episode: PlayingEpisode) => {
     setPlayingEpisode(episode);
+    setIsPlaying(true);
   };
 
   const handlePlayFromHero = () => {
@@ -90,6 +63,7 @@ const Index = () => {
         audioUrl: latestEpisode.audio_url,
         podcastTitle: latestEpisode.podcast_title
       });
+      setIsPlaying(true);
     }
   };
 
@@ -154,11 +128,6 @@ const Index = () => {
       </section>
 
       <Footer />
-      
-      <AudioPlayer 
-        episode={playingEpisode} 
-        onClose={() => setPlayingEpisode(null)} 
-      />
     </div>
   );
 };

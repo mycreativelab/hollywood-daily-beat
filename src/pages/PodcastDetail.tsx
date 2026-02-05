@@ -1,45 +1,17 @@
-import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { EpisodeCard } from '@/components/EpisodeCard';
-import { AudioPlayer } from '@/components/AudioPlayer';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-
-interface PlayingEpisode {
-  id: string;
-  title: string;
-  thumbnail: string | null;
-  audioUrl: string | null;
-  podcastTitle?: string;
-}
+import { useAudio } from '@/contexts/AudioContext';
 
 function PodcastDetailContent() {
   const { id } = useParams<{ id: string }>();
-  const [playingEpisode, setPlayingEpisode] = useState<PlayingEpisode | null>(null);
-
-  // Restore saved playback session on mount
-  useEffect(() => {
-    const saved = localStorage.getItem('podcast-playback-state');
-    if (saved) {
-      try {
-        const state = JSON.parse(saved);
-        setPlayingEpisode({
-          id: state.episodeId,
-          title: state.episodeTitle,
-          thumbnail: state.thumbnail,
-          audioUrl: state.audioUrl,
-          podcastTitle: state.podcastTitle
-        });
-      } catch (e) {
-        console.error('Failed to restore playback state');
-      }
-    }
-  }, []);
+  const { playingEpisode, setPlayingEpisode, setIsPlaying } = useAudio();
 
   const { data: podcast, isLoading: podcastLoading } = useQuery({
     queryKey: ['podcast', id],
@@ -77,6 +49,7 @@ function PodcastDetailContent() {
       audioUrl: episode.audio_url,
       podcastTitle: podcast?.title,
     });
+    setIsPlaying(true);
   };
 
   if (podcastLoading) {
@@ -184,11 +157,6 @@ function PodcastDetailContent() {
       </main>
 
       <Footer />
-      
-      <AudioPlayer 
-        episode={playingEpisode} 
-        onClose={() => setPlayingEpisode(null)} 
-      />
     </div>
   );
 }
