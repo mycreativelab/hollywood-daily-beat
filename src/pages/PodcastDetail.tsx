@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
@@ -21,6 +21,25 @@ interface PlayingEpisode {
 function PodcastDetailContent() {
   const { id } = useParams<{ id: string }>();
   const [playingEpisode, setPlayingEpisode] = useState<PlayingEpisode | null>(null);
+
+  // Restore saved playback session on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('podcast-playback-state');
+    if (saved) {
+      try {
+        const state = JSON.parse(saved);
+        setPlayingEpisode({
+          id: state.episodeId,
+          title: state.episodeTitle,
+          thumbnail: state.thumbnail,
+          audioUrl: state.audioUrl,
+          podcastTitle: state.podcastTitle
+        });
+      } catch (e) {
+        console.error('Failed to restore playback state');
+      }
+    }
+  }, []);
 
   const { data: podcast, isLoading: podcastLoading } = useQuery({
     queryKey: ['podcast', id],
