@@ -1,57 +1,106 @@
 
-# Playback Speed Button hinzufügen
+# Wiedergabeposition speichern
 
 ## Übersicht
-Ein Geschwindigkeitsregler wird zum AudioPlayer hinzugefügt, mit dem zwischen 0.5x, 1x, 1.5x und 2x Wiedergabegeschwindigkeit gewechselt werden kann.
+Die aktuelle Wiedergabeposition wird in localStorage gespeichert, sodass beim Neuladen der Seite oder späteren Besuchen automatisch an der letzten Position fortgesetzt wird.
+
+## Gespeicherte Daten
+
+Im localStorage unter dem Key `podcast-playback-state`:
+```typescript
+{
+  episodeId: string;
+  currentTime: number;
+  episodeTitle: string;
+  thumbnail: string | null;
+  audioUrl: string | null;
+  podcastTitle?: string;
+}
+```
 
 ## Änderungen
 
 ### src/components/AudioPlayer.tsx
 
-**1. Neuen State hinzufügen (nach Zeile 24):**
+**1. Position bei Änderungen speichern:**
 ```typescript
-const [playbackRate, setPlaybackRate] = useState(1);
-```
-
-**2. useEffect für playbackRate (nach Zeile 40):**
-```typescript
+// Speichert Position alle 5 Sekunden und bei Pause/Close
 useEffect(() => {
-  if (audioRef.current) {
-    audioRef.current.playbackRate = playbackRate;
+  if (episode && currentTime > 0) {
+    const state = {
+      episodeId: episode.id,
+      currentTime,
+      episodeTitle: episode.title,
+      thumbnail: episode.thumbnail,
+      audioUrl: episode.audioUrl,
+      podcastTitle: episode.podcastTitle
+    };
+    localStorage.setItem('podcast-playback-state', JSON.stringify(state));
   }
-}, [playbackRate]);
+}, [currentTime, episode]);
 ```
 
-**3. Cycle-Funktion für Geschwindigkeit:**
+**2. Position beim Laden einer Episode wiederherstellen:**
 ```typescript
-const cyclePlaybackRate = () => {
-  const rates = [0.5, 1, 1.5, 2];
-  const currentIndex = rates.indexOf(playbackRate);
-  const nextIndex = (currentIndex + 1) % rates.length;
-  setPlaybackRate(rates[nextIndex]);
-};
+// Im useEffect für episode?.id
+useEffect(() => {
+  if (episode && audioRef.current) {
+    setHasError(false);
+    
+    // Gespeicherte Position laden
+    const saved = localStorage.getItem('podcast-playback-state');
+    if (saved) {
+      const state = JSON.parse(saved);
+      if (state.episodeId === episode.id && state.currentTime > 0) {
+        audioRef.current.currentTime = state.currentTime;
+      }
+    }
+    
+    setIsPlaying(true);
+    audioRef.current.play().catch(() => setIsPlaying(false));
+  }
+}, [episode?.id]);
 ```
 
-**4. Speed-Button im UI (zwischen Volume und Error-Button, ca. Zeile 211):**
+**3. Position bei Ende löschen:**
 ```typescript
-{/* Playback Speed */}
-<Button 
-  variant="ghost" 
-  size="sm"
-  className="text-muted-foreground hover:text-foreground min-w-[3rem] text-xs font-medium"
-  onClick={cyclePlaybackRate}
-  title="Wiedergabegeschwindigkeit"
->
-  {playbackRate}x
-</Button>
+// Im onEnded Handler
+onEnded={() => {
+  setIsPlaying(false);
+  localStorage.removeItem('podcast-playback-state');
+}}
 ```
 
-## Erwartetes Ergebnis
+### Parent-Komponenten (Index.tsx, PodcastDetail.tsx, Podcasts.tsx)
 
-Der AudioPlayer zeigt einen Button mit der aktuellen Geschwindigkeit (z.B. "1x"). Bei jedem Klick wechselt die Geschwindigkeit:
-- 0.5x → 1x → 1.5x → 2x → 0.5x (zyklisch)
+**Gespeicherten State beim Laden der Seite wiederherstellen:**
+```typescript
+// Beim Mount prüfen ob eine Session gespeichert ist
+useEffect(() => {
+  const saved = localStorage.getItem('podcast-playback-state');
+  if (saved) {
+    const state = JSON.parse(saved);
+    setPlayingEpisode({
+      id: state.episodeId,
+      title: state.episodeTitle,
+      thumbnail: state.thumbnail,
+      audioUrl: state.audioUrl,
+      podcastTitle: state.podcastTitle
+    });
+  }
+}, []);
+```
 
-**Layout:**
-```
-[Thumbnail] [Title]  [⏮] [▶] [⏭]  [0:00 ━━━━━━━ 20:00]  [🔊 ━━] [1x] [✕]
-```
+## Erwartetes Verhalten
+
+1. **Beim Abspielen**: Position wird alle paar Sekunden gespeichert
+2. **Beim Neuladen**: AudioPlayer öffnet sich automatisch mit der letzten Episode
+3. **Beim Fortsetzen**: Audio startet an der gespeicherten Position
+4. **Am Ende**: Gespeicherte Position wird gelöscht
+
+## Technische Details
+
+- Speicherung erfolgt über `localStorage` (bleibt auch nach Schließen des Browsers)
+- Position wird nur gespeichert wenn `currentTime > 0`
+- Bei Episode-Ende wird der gespeicherte State gelöscht
+- Die Wiederherstellung erfolgt in `handleLoadedMetadata` um sicherzustellen, dass das Audio geladen ist
