@@ -1,6 +1,7 @@
-import { Play, Clock, Calendar } from 'lucide-react';
+import { Play, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Episode {
   id: string;
@@ -37,15 +38,37 @@ function extractEpisodeNumber(title: string): string {
   return match ? match[1].padStart(2, '0') : '01';
 }
 
-function formatPublishedDate(publishedAt: string | null): string {
+function getOrdinalSuffix(day: number): string {
+  if (day > 3 && day < 21) return 'th';
+  switch (day % 10) {
+    case 1: return 'st';
+    case 2: return 'nd';
+    case 3: return 'rd';
+    default: return 'th';
+  }
+}
+
+function formatPublishedDate(publishedAt: string | null, language: 'en' | 'de'): string {
   if (!publishedAt) return '';
   const date = new Date(publishedAt);
-  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const day = days[date.getDay()];
-  const dayNum = date.getDate().toString().padStart(2, '0');
-  const month = months[date.getMonth()];
-  return `${day}. ${dayNum}. ${month}`;
+  
+  if (language === 'de') {
+    // Deutsch: Di. 13.01.
+    const days = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+    const day = days[date.getDay()];
+    const dayNum = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    return `${day}. ${dayNum}.${month}.`;
+  } else {
+    // Englisch: Tue. 13th Jan
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const day = days[date.getDay()];
+    const dayNum = date.getDate();
+    const suffix = getOrdinalSuffix(dayNum);
+    const month = months[date.getMonth()];
+    return `${day}. ${dayNum}${suffix} ${month}`;
+  }
 }
 
 interface EpisodeCardProps {
@@ -55,6 +78,7 @@ interface EpisodeCardProps {
 
 function EpisodeCard({ episode, onPlay }: EpisodeCardProps) {
   const { user } = useAuth();
+  const { language } = useLanguage();
   
   const handlePlay = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -94,7 +118,7 @@ function EpisodeCard({ episode, onPlay }: EpisodeCardProps) {
           
           {/* Date from published_at */}
           <h3 className="text-foreground font-display font-medium text-[11px] leading-tight line-clamp-1 mb-2">
-            {formatPublishedDate(episode.published_at)}
+            {formatPublishedDate(episode.published_at, language)}
           </h3>
           
           {/* Play Button */}
