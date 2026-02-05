@@ -83,9 +83,9 @@ const Datenschutz = () => {
               <p className="text-muted-foreground">
                 Die verantwortliche Stelle für die Datenverarbeitung auf dieser Website ist:<br /><br />
                 mycreativelab<br />
-                Max Mustermann<br />
-                Musterstraße 123<br />
-                12345 Musterstadt<br /><br />
+                Clemens Szczesny<br />
+                Karlstraße 9<br />
+                71638 Ludwigsburg<br /><br />
                 E-Mail: hello@mycreativelab.de
               </p>
               <p className="text-muted-foreground mt-4">
@@ -207,7 +207,7 @@ const Datenschutz = () => {
             </section>
 
             <p className="text-muted-foreground text-sm mt-12 pt-8 border-t border-border/30">
-              Stand: Januar 2025
+              Stand: Februar 2025
             </p>
           </div>
         </div>

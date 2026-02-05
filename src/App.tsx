@@ -5,7 +5,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { AudioProvider } from "@/contexts/AudioContext";
 import { CookieBanner } from "@/components/CookieBanner";
+import { GlobalAudioPlayer } from "@/components/GlobalAudioPlayer";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Podcasts from "./pages/Podcasts";
@@ -23,25 +25,28 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <LanguageProvider>
       <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/podcasts" element={<Podcasts />} />
-              <Route path="/podcasts/:id" element={<PodcastDetail />} />
-              <Route path="/about" element={<About />} />
-              <Route path="/admin" element={<Admin />} />
-              <Route path="/pending-approval" element={<PendingApproval />} />
-              <Route path="/impressum" element={<Impressum />} />
-              <Route path="/datenschutz" element={<Datenschutz />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-            <CookieBanner />
-          </BrowserRouter>
-        </TooltipProvider>
+        <AudioProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/podcasts" element={<Podcasts />} />
+                <Route path="/podcasts/:id" element={<PodcastDetail />} />
+                <Route path="/about" element={<About />} />
+                <Route path="/admin" element={<Admin />} />
+                <Route path="/pending-approval" element={<PendingApproval />} />
+                <Route path="/impressum" element={<Impressum />} />
+                <Route path="/datenschutz" element={<Datenschutz />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+              <CookieBanner />
+              <GlobalAudioPlayer />
+            </BrowserRouter>
+          </TooltipProvider>
+        </AudioProvider>
       </AuthProvider>
     </LanguageProvider>
   </QueryClientProvider>
