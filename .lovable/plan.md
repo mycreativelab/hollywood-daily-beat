@@ -1,106 +1,100 @@
 
-# Wiedergabeposition speichern
+# Fortschrittsanzeige für Episoden
 
 ## Übersicht
-Die aktuelle Wiedergabeposition wird in localStorage gespeichert, sodass beim Neuladen der Seite oder späteren Besuchen automatisch an der letzten Position fortgesetzt wird.
+Jede Episode-Karte erhält eine dünne Fortschrittsleiste, die anzeigt, wie viel bereits gehört wurde. Der Balken ist schwarz/dunkel und füllt sich mit Orange entsprechend dem Fortschritt.
 
-## Gespeicherte Daten
+## Lösung
 
-Im localStorage unter dem Key `podcast-playback-state`:
+### 1. Neue localStorage-Struktur für alle Episoden
+
+Zusätzlich zum bestehenden `podcast-playback-state` speichern wir den Fortschritt aller Episoden:
+
 ```typescript
+// Key: "episode-progress"
+// Wert: { [episodeId]: { currentTime: number, duration: number } }
 {
-  episodeId: string;
-  currentTime: number;
-  episodeTitle: string;
-  thumbnail: string | null;
-  audioUrl: string | null;
-  podcastTitle?: string;
+  "abc-123": { currentTime: 150, duration: 1800 },  // 8.3% gehört
+  "def-456": { currentTime: 900, duration: 900 },   // 100% gehört
+  "ghi-789": { currentTime: 450, duration: 1200 }   // 37.5% gehört
 }
 ```
 
-## Änderungen
+### 2. Änderungen an src/components/AudioPlayer.tsx
 
-### src/components/AudioPlayer.tsx
-
-**1. Position bei Änderungen speichern:**
+**Neue Logik zum Speichern des Fortschritts pro Episode:**
 ```typescript
-// Speichert Position alle 5 Sekunden und bei Pause/Close
+// Im useEffect für currentTime/episode
 useEffect(() => {
-  if (episode && currentTime > 0) {
-    const state = {
-      episodeId: episode.id,
-      currentTime,
-      episodeTitle: episode.title,
-      thumbnail: episode.thumbnail,
-      audioUrl: episode.audioUrl,
-      podcastTitle: episode.podcastTitle
-    };
-    localStorage.setItem('podcast-playback-state', JSON.stringify(state));
-  }
-}, [currentTime, episode]);
-```
-
-**2. Position beim Laden einer Episode wiederherstellen:**
-```typescript
-// Im useEffect für episode?.id
-useEffect(() => {
-  if (episode && audioRef.current) {
-    setHasError(false);
+  if (episode && currentTime > 0 && duration > 0) {
+    // Bestehende Logik für podcast-playback-state...
     
-    // Gespeicherte Position laden
-    const saved = localStorage.getItem('podcast-playback-state');
-    if (saved) {
-      const state = JSON.parse(saved);
-      if (state.episodeId === episode.id && state.currentTime > 0) {
-        audioRef.current.currentTime = state.currentTime;
-      }
-    }
-    
-    setIsPlaying(true);
-    audioRef.current.play().catch(() => setIsPlaying(false));
+    // NEU: Fortschritt für diese Episode speichern
+    const progressData = JSON.parse(
+      localStorage.getItem('episode-progress') || '{}'
+    );
+    progressData[episode.id] = { currentTime, duration };
+    localStorage.setItem('episode-progress', JSON.stringify(progressData));
   }
-}, [episode?.id]);
+}, [currentTime, duration, episode]);
 ```
 
-**3. Position bei Ende löschen:**
-```typescript
-// Im onEnded Handler
-onEnded={() => {
-  setIsPlaying(false);
-  localStorage.removeItem('podcast-playback-state');
-}}
-```
+### 3. Änderungen an src/components/EpisodeList.tsx
 
-### Parent-Komponenten (Index.tsx, PodcastDetail.tsx, Podcasts.tsx)
-
-**Gespeicherten State beim Laden der Seite wiederherstellen:**
+**3a. Hook für Fortschrittsdaten laden:**
 ```typescript
-// Beim Mount prüfen ob eine Session gespeichert ist
+import { useState, useEffect } from 'react';
+
+// In EpisodeCard Komponente
+const [progress, setProgress] = useState(0);
+
 useEffect(() => {
-  const saved = localStorage.getItem('podcast-playback-state');
-  if (saved) {
-    const state = JSON.parse(saved);
-    setPlayingEpisode({
-      id: state.episodeId,
-      title: state.episodeTitle,
-      thumbnail: state.thumbnail,
-      audioUrl: state.audioUrl,
-      podcastTitle: state.podcastTitle
-    });
+  const progressData = JSON.parse(
+    localStorage.getItem('episode-progress') || '{}'
+  );
+  const episodeProgress = progressData[episode.id];
+  if (episodeProgress && episodeProgress.duration > 0) {
+    setProgress((episodeProgress.currentTime / episodeProgress.duration) * 100);
   }
-}, []);
+}, [episode.id]);
 ```
 
-## Erwartetes Verhalten
+**3b. Fortschrittsbalken UI (nach dem Play-Button, ca. Zeile 131):**
+```typescript
+{/* Progress bar - shows listening progress */}
+{progress > 0 && (
+  <div className="absolute bottom-0 left-0 right-0 h-1 bg-muted/50">
+    <div 
+      className="h-full bg-primary transition-all duration-300"
+      style={{ width: `${Math.min(progress, 100)}%` }}
+    />
+  </div>
+)}
+```
 
-1. **Beim Abspielen**: Position wird alle paar Sekunden gespeichert
-2. **Beim Neuladen**: AudioPlayer öffnet sich automatisch mit der letzten Episode
-3. **Beim Fortsetzen**: Audio startet an der gespeicherten Position
-4. **Am Ende**: Gespeicherte Position wird gelöscht
+## Visuelles Ergebnis
+
+```
+┌─────────────────────┐
+│                     │
+│   Hollywood Daily   │
+│     Do. 05.02.      │
+│         ▶          │
+│                     │
+│ EP 05        12min  │
+├─────────────────────┤  ← Dünner Fortschrittsbalken
+│████████░░░░░░░░░░░░│  ← Orange = gehört, Grau = noch nicht
+└─────────────────────┘
+```
+
+- **0% gehört**: Kein Balken sichtbar
+- **Teilweise gehört**: Orangefarbener Fortschritt
+- **100% gehört**: Vollständig orange
 
 ## Technische Details
 
-- Speicherung erfolgt über `localStorage` (bleibt auch nach Schließen des Browsers)
-- Position wird nur gespeichert wenn `currentTime > 0`
-- Bei Episode-Ende wird der gespeicherte State gelöscht
-- Die Wiederherstellung erfolgt in `handleLoadedMetadata` um sicherzustellen, dass das Audio geladen ist
+- Höhe des Balkens: 4px (`h-1`)
+- Hintergrund: `bg-muted/50` (dunkler, halbtransparenter Balken)
+- Fortschritt: `bg-primary` (Orange)
+- Position: Am unteren Rand der Karte
+- Balken erscheint nur wenn `progress > 0`
