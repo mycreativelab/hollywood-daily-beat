@@ -30,20 +30,42 @@ function extractEpisodeNumber(title: string): string {
   return match ? match[1].padStart(2, '0') : '01';
 }
 
-function formatPublishedDate(publishedAt: string | null | undefined): string {
+function getOrdinalSuffix(day: number): string {
+  if (day > 3 && day < 21) return 'th';
+  switch (day % 10) {
+    case 1: return 'st';
+    case 2: return 'nd';
+    case 3: return 'rd';
+    default: return 'th';
+  }
+}
+
+function formatPublishedDate(publishedAt: string | null | undefined, language: 'en' | 'de'): string {
   if (!publishedAt) return '';
   const date = new Date(publishedAt);
-  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const day = days[date.getDay()];
-  const dayNum = date.getDate().toString().padStart(2, '0');
-  const month = months[date.getMonth()];
-  return `${day}. ${dayNum}. ${month}`;
+  
+  if (language === 'de') {
+    // Deutsch: Di. 13.01.
+    const days = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
+    const day = days[date.getDay()];
+    const dayNum = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    return `${day}. ${dayNum}.${month}.`;
+  } else {
+    // Englisch: Tue. 13th Jan
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const day = days[date.getDay()];
+    const dayNum = date.getDate();
+    const suffix = getOrdinalSuffix(dayNum);
+    const month = months[date.getMonth()];
+    return `${day}. ${dayNum}${suffix} ${month}`;
+  }
 }
 
 export function HeroBanner({ latestEpisode, onPlay }: HeroBannerProps) {
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
 
   const handlePlay = () => {
     if (!user) return;
@@ -151,7 +173,7 @@ export function HeroBanner({ latestEpisode, onPlay }: HeroBannerProps) {
               {/* Episode Info */}
               <div className="flex-1 min-w-0">
                 <h3 className="text-foreground font-display font-bold text-lg truncate">
-                  {latestEpisode.podcast_title || 'Hollywood Daily'} - {formatPublishedDate(latestEpisode.published_at)}
+                  {latestEpisode.podcast_title || 'Hollywood Daily'} - {formatPublishedDate(latestEpisode.published_at, language)}
                 </h3>
                 <div className="flex items-center gap-3 mt-1">
                   <span className="flex items-center gap-1 text-primary text-xs">
