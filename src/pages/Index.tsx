@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { HeroBanner } from '@/components/HeroBanner';
 import { EpisodeList } from '@/components/EpisodeList';
@@ -19,6 +19,25 @@ interface PlayingEpisode {
 const Index = () => {
   const [playingEpisode, setPlayingEpisode] = useState<PlayingEpisode | null>(null);
   const { t } = useLanguage();
+
+  // Restore saved playback session on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('podcast-playback-state');
+    if (saved) {
+      try {
+        const state = JSON.parse(saved);
+        setPlayingEpisode({
+          id: state.episodeId,
+          title: state.episodeTitle,
+          thumbnail: state.thumbnail,
+          audioUrl: state.audioUrl,
+          podcastTitle: state.podcastTitle
+        });
+      } catch (e) {
+        console.error('Failed to restore playback state');
+      }
+    }
+  }, []);
 
   // Fetch latest episode for hero banner
   const { data: latestEpisode } = useQuery({

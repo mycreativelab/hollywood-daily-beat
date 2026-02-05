@@ -26,9 +26,39 @@ export function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const { toast } = useToast();
 
+  // Save position to localStorage
+  useEffect(() => {
+    if (episode && currentTime > 0) {
+      const state = {
+        episodeId: episode.id,
+        currentTime,
+        episodeTitle: episode.title,
+        thumbnail: episode.thumbnail,
+        audioUrl: episode.audioUrl,
+        podcastTitle: episode.podcastTitle
+      };
+      localStorage.setItem('podcast-playback-state', JSON.stringify(state));
+    }
+  }, [currentTime, episode]);
+
+  // Load episode and restore position
   useEffect(() => {
     if (episode && audioRef.current) {
       setHasError(false);
+      
+      // Restore saved position if same episode
+      const saved = localStorage.getItem('podcast-playback-state');
+      if (saved) {
+        try {
+          const state = JSON.parse(saved);
+          if (state.episodeId === episode.id && state.currentTime > 0) {
+            audioRef.current.currentTime = state.currentTime;
+          }
+        } catch (e) {
+          console.error('Failed to parse saved playback state');
+        }
+      }
+      
       setIsPlaying(true);
       audioRef.current.play().catch(() => setIsPlaying(false));
     }
@@ -128,7 +158,10 @@ export function AudioPlayer({ episode, onClose }: AudioPlayerProps) {
         src={encodedAudioUrl}
         onTimeUpdate={handleTimeUpdate}
         onLoadedMetadata={handleLoadedMetadata}
-        onEnded={() => setIsPlaying(false)}
+        onEnded={() => {
+          setIsPlaying(false);
+          localStorage.removeItem('podcast-playback-state');
+        }}
         onError={handleAudioError}
       />
       
