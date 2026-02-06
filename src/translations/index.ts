@@ -74,6 +74,22 @@ export const translations: Record<'en' | 'de', {
       email: 'Email',
       password: 'Password',
       forgotPassword: 'Forgot Password?'
+    },
+    settings: {
+      title: 'Settings',
+      notifications: 'Notifications',
+      notificationsDescription: 'Receive automatic updates for new episodes.',
+      loading: 'Loading...'
+    },
+    slack: {
+      bannerText: "Don't miss any episode! Get automatic updates directly in your Slack channel.",
+      connected: 'Connected to Slack',
+      disconnect: 'Disconnect',
+      disconnecting: 'Disconnecting...',
+      disconnected: 'Slack disconnected successfully',
+      disconnectError: 'Error disconnecting from Slack',
+      workspace: 'Workspace',
+      notConnectedDescription: 'Connect your Slack workspace to receive notifications when new episodes are published.'
     }
   },
   de: {
