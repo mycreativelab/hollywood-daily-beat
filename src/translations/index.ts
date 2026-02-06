@@ -99,7 +99,8 @@ export const translations: Record<'en' | 'de', {
       about: 'Über uns',
       subscribe: 'Anmelden',
       signOut: 'Abmelden',
-      admin: 'Admin'
+      admin: 'Admin',
+      settings: 'Einstellungen'
     },
     hero: {
       badge: 'mycreativelab Podcast',
