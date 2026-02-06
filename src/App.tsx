@@ -40,6 +40,7 @@ const App = () => (
                 <Route path="/podcasts/:id" element={<PodcastDetail />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/admin" element={<Admin />} />
+                <Route path="/settings" element={<Settings />} />
                 <Route path="/pending-approval" element={<PendingApproval />} />
                 <Route path="/impressum" element={<Impressum />} />
                 <Route path="/datenschutz" element={<Datenschutz />} />
