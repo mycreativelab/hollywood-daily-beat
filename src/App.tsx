@@ -47,6 +47,7 @@ const App = () => (
                 <Route path="/slack/callback" element={<SlackCallback />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              <SlackBanner />
               <CookieBanner />
               <GlobalAudioPlayer />
             </BrowserRouter>

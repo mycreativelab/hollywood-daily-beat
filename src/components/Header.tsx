@@ -154,7 +154,14 @@ export function Header() {
                   <span className="text-sm text-muted-foreground py-2">
                     Hallo, {profile?.display_name || user.email}
                   </span>
-                  <SlackConnectButton className="py-2" />
+                  <Link 
+                    to="/settings" 
+                    className="flex items-center gap-2 text-muted-foreground hover:text-foreground py-2"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Settings className="w-4 h-4" />
+                    {t.nav.settings}
+                  </Link>
                   {isAdmin && (
                     <Link 
                       to="/admin" 

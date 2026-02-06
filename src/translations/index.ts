@@ -157,6 +157,22 @@ export const translations: Record<'en' | 'de', {
       email: 'E-Mail',
       password: 'Passwort',
       forgotPassword: 'Passwort vergessen?'
+    },
+    settings: {
+      title: 'Einstellungen',
+      notifications: 'Benachrichtigungen',
+      notificationsDescription: 'Erhalte automatische Updates zu neuen Episoden.',
+      loading: 'Laden...'
+    },
+    slack: {
+      bannerText: 'Verpasse keine Episode! Erhalte automatische Updates direkt in deinen Slack-Channel.',
+      connected: 'Mit Slack verbunden',
+      disconnect: 'Verbindung trennen',
+      disconnecting: 'Trenne Verbindung...',
+      disconnected: 'Slack-Verbindung erfolgreich getrennt',
+      disconnectError: 'Fehler beim Trennen der Slack-Verbindung',
+      workspace: 'Workspace',
+      notConnectedDescription: 'Verbinde deinen Slack-Workspace, um Benachrichtigungen zu erhalten, wenn neue Episoden veröffentlicht werden.'
     }
   }
 };
