@@ -16,7 +16,8 @@ export const translations: Record<'en' | 'de', {
       about: 'About',
       subscribe: 'Subscribe',
       signOut: 'Sign Out',
-      admin: 'Admin'
+      admin: 'Admin',
+      settings: 'Settings'
     },
     hero: {
       badge: 'mycreativelab Podcast',
