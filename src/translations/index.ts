@@ -1,11 +1,13 @@
 export const translations: Record<'en' | 'de', {
-  nav: { home: string; podcasts: string; about: string; subscribe: string; signOut: string; admin: string };
+  nav: { home: string; podcasts: string; about: string; subscribe: string; signOut: string; admin: string; settings: string };
   hero: { badge: string; heading1: string; heading2: string; description: string; browseEpisodes: string; startListening: string; learnMore: string; latestEpisode: string; signInToPlay: string; listenNow: string };
   episodes: { allEpisodes: string; recentEpisodes: string; searchPlaceholder: string; noPodcastsFound: string; tryDifferentSearch: string };
   about: { aboutUs: string; aboutBadge: string; aboutTitle: string; aboutDescription: string; mission: string; missionText: string; dailyContent: string; dailyContentText: string; expertInsights: string; expertInsightsText: string; creativeStories: string; creativeStoriesText: string; comingSoon: string; newChannels: string };
   footer: { navigation: string; contact: string; aboutUs: string; allRightsReserved: string; description: string };
   cookies: { title: string; description: string; learnMore: string; acceptAll: string; onlyNecessary: string };
   auth: { signIn: string; signUp: string; email: string; password: string; forgotPassword: string };
+  settings: { title: string; notifications: string; notificationsDescription: string; loading: string };
+  slack: { bannerText: string; connected: string; disconnect: string; disconnecting: string; disconnected: string; disconnectError: string; workspace: string; notConnectedDescription: string };
 }> = {
   en: {
     nav: {
