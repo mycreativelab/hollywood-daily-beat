@@ -60,8 +60,9 @@ export function SlackConnectButton({ className }: SlackConnectButtonProps) {
 
     const redirectUri = encodeURIComponent(`${window.location.origin}/slack/callback`);
     const scope = encodeURIComponent('incoming-webhook');
+    const state = encodeURIComponent(user!.id); // User-ID als state Parameter
     
-    const slackAuthUrl = `https://slack.com/oauth/v2/authorize?client_id=${SLACK_CLIENT_ID}&scope=${scope}&redirect_uri=${redirectUri}`;
+    const slackAuthUrl = `https://slack.com/oauth/v2/authorize?client_id=${SLACK_CLIENT_ID}&scope=${scope}&redirect_uri=${redirectUri}&state=${state}`;
     
     window.location.href = slackAuthUrl;
   };

@@ -12,39 +12,20 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Validate authorization
-    const authHeader = req.headers.get('Authorization')
-    if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_ANON_KEY')!,
-      { global: { headers: { Authorization: authHeader } } }
-    )
-
-    const token = authHeader.replace('Bearer ', '')
-    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token)
-    
-    if (claimsError || !claimsData?.claims) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    const userId = claimsData.claims.sub
-
-    // Parse request body
-    const { code, redirect_uri } = await req.json()
+    // Parse request body - user_id kommt aus dem state Parameter
+    const { code, redirect_uri, user_id } = await req.json()
 
     if (!code) {
       return new Response(
         JSON.stringify({ error: 'Missing code parameter' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    if (!user_id) {
+      console.warn('No user_id provided in request')
+      return new Response(
+        JSON.stringify({ error: 'Missing user_id parameter' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
@@ -97,11 +78,17 @@ Deno.serve(async (req) => {
       )
     }
 
+    // Supabase Client mit Service Role für DB-Zugriff (RLS bypass)
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+    )
+
     // Store in database (upsert to handle reconnections)
     const { error: dbError } = await supabase
       .from('slack_subscribers')
       .upsert({
-        user_id: userId,
+        user_id: user_id,
         webhook_url: webhookUrl,
         team_id: teamId,
         team_name: teamName,
