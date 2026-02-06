@@ -8,12 +8,14 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AudioProvider } from "@/contexts/AudioContext";
 import { CookieBanner } from "@/components/CookieBanner";
 import { GlobalAudioPlayer } from "@/components/GlobalAudioPlayer";
+import { SlackBanner } from "@/components/SlackBanner";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Podcasts from "./pages/Podcasts";
 import PodcastDetail from "./pages/PodcastDetail";
 import About from "./pages/About";
 import Admin from "./pages/Admin";
+import Settings from "./pages/Settings";
 import PendingApproval from "./pages/PendingApproval";
 import Impressum from "./pages/Impressum";
 import Datenschutz from "./pages/Datenschutz";
@@ -38,12 +40,14 @@ const App = () => (
                 <Route path="/podcasts/:id" element={<PodcastDetail />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/admin" element={<Admin />} />
+                <Route path="/settings" element={<Settings />} />
                 <Route path="/pending-approval" element={<PendingApproval />} />
                 <Route path="/impressum" element={<Impressum />} />
                 <Route path="/datenschutz" element={<Datenschutz />} />
                 <Route path="/slack/callback" element={<SlackCallback />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              <SlackBanner />
               <CookieBanner />
               <GlobalAudioPlayer />
             </BrowserRouter>

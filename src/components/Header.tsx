@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Mic2, Shield, Globe } from 'lucide-react';
+import { Menu, X, Mic2, Shield, Globe, Settings } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { SlackConnectButton } from '@/components/SlackConnectButton';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -63,7 +62,16 @@ export function Header() {
 
             {user ? (
               <>
-                <SlackConnectButton />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  asChild
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <Link to="/settings">
+                    <Settings className="w-5 h-5" />
+                  </Link>
+                </Button>
                 {isAdmin && (
                   <Button
                     variant="ghost"
@@ -146,7 +154,14 @@ export function Header() {
                   <span className="text-sm text-muted-foreground py-2">
                     Hallo, {profile?.display_name || user.email}
                   </span>
-                  <SlackConnectButton className="py-2" />
+                  <Link 
+                    to="/settings" 
+                    className="flex items-center gap-2 text-muted-foreground hover:text-foreground py-2"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <Settings className="w-4 h-4" />
+                    {t.nav.settings}
+                  </Link>
                   {isAdmin && (
                     <Link 
                       to="/admin" 

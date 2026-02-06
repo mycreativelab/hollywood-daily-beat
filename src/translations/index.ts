@@ -1,11 +1,13 @@
 export const translations: Record<'en' | 'de', {
-  nav: { home: string; podcasts: string; about: string; subscribe: string; signOut: string; admin: string };
+  nav: { home: string; podcasts: string; about: string; subscribe: string; signOut: string; admin: string; settings: string };
   hero: { badge: string; heading1: string; heading2: string; description: string; browseEpisodes: string; startListening: string; learnMore: string; latestEpisode: string; signInToPlay: string; listenNow: string };
   episodes: { allEpisodes: string; recentEpisodes: string; searchPlaceholder: string; noPodcastsFound: string; tryDifferentSearch: string };
   about: { aboutUs: string; aboutBadge: string; aboutTitle: string; aboutDescription: string; mission: string; missionText: string; dailyContent: string; dailyContentText: string; expertInsights: string; expertInsightsText: string; creativeStories: string; creativeStoriesText: string; comingSoon: string; newChannels: string };
   footer: { navigation: string; contact: string; aboutUs: string; allRightsReserved: string; description: string };
   cookies: { title: string; description: string; learnMore: string; acceptAll: string; onlyNecessary: string };
   auth: { signIn: string; signUp: string; email: string; password: string; forgotPassword: string };
+  settings: { title: string; notifications: string; notificationsDescription: string; loading: string };
+  slack: { bannerText: string; connected: string; disconnect: string; disconnecting: string; disconnected: string; disconnectError: string; workspace: string; notConnectedDescription: string };
 }> = {
   en: {
     nav: {
@@ -14,7 +16,8 @@ export const translations: Record<'en' | 'de', {
       about: 'About',
       subscribe: 'Subscribe',
       signOut: 'Sign Out',
-      admin: 'Admin'
+      admin: 'Admin',
+      settings: 'Settings'
     },
     hero: {
       badge: 'mycreativelab Podcast',
@@ -71,6 +74,22 @@ export const translations: Record<'en' | 'de', {
       email: 'Email',
       password: 'Password',
       forgotPassword: 'Forgot Password?'
+    },
+    settings: {
+      title: 'Settings',
+      notifications: 'Notifications',
+      notificationsDescription: 'Receive automatic updates for new episodes.',
+      loading: 'Loading...'
+    },
+    slack: {
+      bannerText: "Don't miss any episode! Get automatic updates directly in your Slack channel.",
+      connected: 'Connected to Slack',
+      disconnect: 'Disconnect',
+      disconnecting: 'Disconnecting...',
+      disconnected: 'Slack disconnected successfully',
+      disconnectError: 'Error disconnecting from Slack',
+      workspace: 'Workspace',
+      notConnectedDescription: 'Connect your Slack workspace to receive notifications when new episodes are published.'
     }
   },
   de: {
@@ -80,7 +99,8 @@ export const translations: Record<'en' | 'de', {
       about: 'Über uns',
       subscribe: 'Anmelden',
       signOut: 'Abmelden',
-      admin: 'Admin'
+      admin: 'Admin',
+      settings: 'Einstellungen'
     },
     hero: {
       badge: 'mycreativelab Podcast',
@@ -137,6 +157,22 @@ export const translations: Record<'en' | 'de', {
       email: 'E-Mail',
       password: 'Passwort',
       forgotPassword: 'Passwort vergessen?'
+    },
+    settings: {
+      title: 'Einstellungen',
+      notifications: 'Benachrichtigungen',
+      notificationsDescription: 'Erhalte automatische Updates zu neuen Episoden.',
+      loading: 'Laden...'
+    },
+    slack: {
+      bannerText: 'Verpasse keine Episode! Erhalte automatische Updates direkt in deinen Slack-Channel.',
+      connected: 'Mit Slack verbunden',
+      disconnect: 'Verbindung trennen',
+      disconnecting: 'Trenne Verbindung...',
+      disconnected: 'Slack-Verbindung erfolgreich getrennt',
+      disconnectError: 'Fehler beim Trennen der Slack-Verbindung',
+      workspace: 'Workspace',
+      notConnectedDescription: 'Verbinde deinen Slack-Workspace, um Benachrichtigungen zu erhalten, wenn neue Episoden veröffentlicht werden.'
     }
   }
 };
