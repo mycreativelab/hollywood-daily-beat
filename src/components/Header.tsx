@@ -62,7 +62,16 @@ export function Header() {
 
             {user ? (
               <>
-                <SlackConnectButton />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  asChild
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  <Link to="/settings">
+                    <Settings className="w-5 h-5" />
+                  </Link>
+                </Button>
                 {isAdmin && (
                   <Button
                     variant="ghost"
