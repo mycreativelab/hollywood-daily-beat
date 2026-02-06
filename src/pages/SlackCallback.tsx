@@ -1,8 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Loader2, CheckCircle, XCircle } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -10,7 +8,6 @@ import { Button } from '@/components/ui/button';
 export default function SlackCallback() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { session, loading: authLoading } = useAuth();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('');
   const [details, setDetails] = useState<{ teamName?: string; channel?: string }>({});
@@ -18,6 +15,7 @@ export default function SlackCallback() {
   useEffect(() => {
     const code = searchParams.get('code');
     const error = searchParams.get('error');
+    const state = searchParams.get('state'); // User-ID aus state Parameter
 
     if (error) {
       setStatus('error');
@@ -31,27 +29,36 @@ export default function SlackCallback() {
       return;
     }
 
-    if (authLoading) return;
-
-    if (!session) {
+    if (!state) {
       setStatus('error');
-      setMessage('Du musst eingeloggt sein, um Slack zu verbinden.');
+      setMessage('Fehlende User-Identifikation.');
       return;
     }
 
-    // Exchange code for webhook
+    // Exchange code for webhook - direkter fetch ohne Auth-Header
     const exchangeCode = async () => {
       try {
         const redirectUri = `${window.location.origin}/slack/callback`;
         
-        const { data, error } = await supabase.functions.invoke('slack-auth', {
-          body: { code, redirect_uri: redirectUri }
-        });
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/slack-auth`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              code, 
+              redirect_uri: redirectUri,
+              user_id: state  // User-ID aus state
+            })
+          }
+        );
 
-        if (error) {
-          console.error('Edge function error:', error);
+        const data = await response.json();
+
+        if (!response.ok) {
+          console.error('Edge function error:', data);
           setStatus('error');
-          setMessage(error.message || 'Verbindung fehlgeschlagen.');
+          setMessage(data?.error || 'Verbindung fehlgeschlagen.');
           return;
         }
 
@@ -74,7 +81,7 @@ export default function SlackCallback() {
     };
 
     exchangeCode();
-  }, [searchParams, session, authLoading]);
+  }, [searchParams]);
 
   return (
     <div className="min-h-screen bg-background">
