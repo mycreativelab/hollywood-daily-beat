@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-const SLACK_CLIENT_ID = import.meta.env.VITE_SLACK_CLIENT_ID;
+const SLACK_CLIENT_ID = '1044907775315.10459082290148';
 
 interface SlackConnectButtonProps {
   className?: string;
