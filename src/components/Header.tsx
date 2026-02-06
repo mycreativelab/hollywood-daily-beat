@@ -1,11 +1,10 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, Mic2, Shield, Globe } from 'lucide-react';
+import { Menu, X, Mic2, Shield, Globe, Settings } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { SlackConnectButton } from '@/components/SlackConnectButton';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
