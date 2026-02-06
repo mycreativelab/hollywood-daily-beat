@@ -92,7 +92,7 @@ export default function SlackCallback() {
 
             {status === 'success' && (
               <>
-                <CheckCircle className="w-16 h-16 mx-auto text-green-500 mb-6" />
+                <CheckCircle className="w-16 h-16 mx-auto text-primary mb-6" />
                 <h1 className="text-2xl font-bold mb-2">{message}</h1>
                 {details.teamName && (
                   <p className="text-muted-foreground mb-2">
