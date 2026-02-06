@@ -11,3 +11,9 @@ verify_jwt = false
 
 [functions.fix-episode-durations]
 verify_jwt = false
+
+[functions.slack-auth]
+verify_jwt = false
+
+[functions.notify-slack]
+verify_jwt = false

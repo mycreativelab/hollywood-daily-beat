@@ -5,6 +5,7 @@ import { Menu, X, Mic2, Shield, Globe } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { SlackConnectButton } from '@/components/SlackConnectButton';
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -62,6 +63,7 @@ export function Header() {
 
             {user ? (
               <>
+                <SlackConnectButton />
                 {isAdmin && (
                   <Button
                     variant="ghost"
@@ -144,6 +146,7 @@ export function Header() {
                   <span className="text-sm text-muted-foreground py-2">
                     Hallo, {profile?.display_name || user.email}
                   </span>
+                  <SlackConnectButton className="py-2" />
                   {isAdmin && (
                     <Link 
                       to="/admin" 
