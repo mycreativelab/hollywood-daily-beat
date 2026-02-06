@@ -17,6 +17,7 @@ import Admin from "./pages/Admin";
 import PendingApproval from "./pages/PendingApproval";
 import Impressum from "./pages/Impressum";
 import Datenschutz from "./pages/Datenschutz";
+import SlackCallback from "./pages/SlackCallback";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const App = () => (
                 <Route path="/pending-approval" element={<PendingApproval />} />
                 <Route path="/impressum" element={<Impressum />} />
                 <Route path="/datenschutz" element={<Datenschutz />} />
+                <Route path="/slack/callback" element={<SlackCallback />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <CookieBanner />

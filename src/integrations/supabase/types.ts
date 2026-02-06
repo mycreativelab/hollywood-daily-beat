@@ -124,6 +124,36 @@ export type Database = {
         }
         Relationships: []
       }
+      slack_subscribers: {
+        Row: {
+          channel: string | null
+          created_at: string | null
+          id: string
+          team_id: string
+          team_name: string | null
+          user_id: string
+          webhook_url: string
+        }
+        Insert: {
+          channel?: string | null
+          created_at?: string | null
+          id?: string
+          team_id: string
+          team_name?: string | null
+          user_id: string
+          webhook_url: string
+        }
+        Update: {
+          channel?: string | null
+          created_at?: string | null
+          id?: string
+          team_id?: string
+          team_name?: string | null
+          user_id?: string
+          webhook_url?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
