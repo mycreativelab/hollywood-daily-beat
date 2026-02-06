@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 export default function SlackCallback() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { session, loading: authLoading } = useAuth();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
   const [message, setMessage] = useState('');
   const [details, setDetails] = useState<{ teamName?: string; channel?: string }>({});
