@@ -1,26 +1,92 @@
 
 
-# SLACK_CLIENT_ID Secret Aktualisierung
+# Slack-Benachrichtigung bei neuen Episoden
 
-## Übersicht
+## Problem
 
-Das Supabase Secret `SLACK_CLIENT_ID` muss auf den korrekten Wert aktualisiert werden, damit die Edge Function `slack-auth` die OAuth-Authentifizierung erfolgreich durchführen kann.
+Die `add-episode` Edge Function speichert neue Episoden in der Datenbank, ruft aber **nicht** die `notify-slack` Function auf. Deshalb erhalten Slack-Abonnenten keine Benachrichtigungen.
 
-## Aktuelle Situation
+## Lösungsansatz
 
-| Komponente | Aktueller Wert | Korrekter Wert |
-|------------|----------------|----------------|
-| Frontend (`SlackConnectButton.tsx`) | `10449077755315.10459082290148` | ✅ Bereits korrekt |
-| Frontend (`SlackBanner.tsx`) | `10449077755315.10459082290148` | ✅ Bereits korrekt |
-| Backend Secret (`SLACK_CLIENT_ID`) | `1044907775315...` (fehlt eine 5) | ❌ Muss aktualisiert werden |
+Nach dem erfolgreichen Einfügen einer Episode wird automatisch die `notify-slack` Function aufgerufen.
 
-## Geplante Änderung
+## Technische Umsetzung
 
-**Secret-Update:**
-- Name: `SLACK_CLIENT_ID`
-- Neuer Wert: `10449077755315.10459082290148`
+### Änderung in `supabase/functions/add-episode/index.ts`
 
-## Auswirkung
+Nach dem erfolgreichen Insert (ca. Zeile 278) wird folgender Code hinzugefügt:
 
-Nach der Aktualisierung wird die Edge Function `slack-auth` die korrekte Client ID beim Token-Austausch mit Slack verwenden und der `invalid_client_id` Fehler wird behoben.
+```text
+┌─────────────────────────────────────────────────────────────┐
+│  Episode erfolgreich erstellt                                │
+│                    ↓                                         │
+│  Podcast-Titel aus Datenbank abrufen (für Benachrichtigung) │
+│                    ↓                                         │
+│  notify-slack Function aufrufen mit:                         │
+│  - episode_title: Titel der neuen Episode                    │
+│  - podcast_title: Name des Podcasts                          │
+│  - episode_url: Link zur Episode (optional)                  │
+│                    ↓                                         │
+│  Erfolgsantwort zurückgeben                                  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Code-Änderungen
+
+1. **Podcast-Titel abrufen**: Nach dem Erstellen der Episode wird der zugehörige Podcast-Titel aus der `podcasts`-Tabelle geholt.
+
+2. **notify-slack aufrufen**: Die Function wird mit den Episode-Details aufgerufen:
+   - `episode_title`: Titel der neuen Episode
+   - `podcast_title`: Name des Podcasts
+   - `episode_url`: URL zur Podcast-Detail-Seite (z.B. `https://[domain]/podcasts/[podcast_id]`)
+
+3. **Fehlerbehandlung**: Fehler bei der Benachrichtigung werden geloggt, blockieren aber nicht die Erfolgsantwort (die Episode ist bereits gespeichert).
+
+### Beispiel-Code
+
+```typescript
+// Nach erfolgreichem Insert (Zeile 278)
+// Podcast-Titel für die Benachrichtigung holen
+const { data: podcast } = await supabase
+  .from('podcasts')
+  .select('title')
+  .eq('id', body.podcast_id)
+  .single();
+
+// Slack-Benachrichtigung senden (async, non-blocking)
+if (podcast) {
+  try {
+    const notifyResponse = await fetch(
+      `${supabaseUrl}/functions/v1/notify-slack`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseServiceKey}`,
+        },
+        body: JSON.stringify({
+          episode_title: normalizedTitle,
+          podcast_title: podcast.title,
+          episode_url: `https://[your-domain]/podcasts/${body.podcast_id}`,
+        }),
+      }
+    );
+    console.log('Slack notification sent:', await notifyResponse.json());
+  } catch (notifyError) {
+    console.error('Failed to send Slack notification:', notifyError);
+    // Fehler wird geloggt, aber nicht weitergegeben
+  }
+}
+```
+
+## Vorteile
+
+- Automatische Benachrichtigung bei jedem neuen Episode-Upload
+- Kein manueller Eingriff erforderlich
+- Fehler bei der Benachrichtigung blockieren nicht den Upload-Prozess
+
+## Zu beachten
+
+- Die Episode-URL muss auf die korrekte Domain zeigen (wird aus den Projekteinstellungen ermittelt)
+- Die `notify-slack` Function muss deployed sein (bereits der Fall)
 
