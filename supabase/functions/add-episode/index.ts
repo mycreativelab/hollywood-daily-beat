@@ -277,6 +277,39 @@ serve(async (req) => {
 
     console.log('Episode created successfully:', JSON.stringify(data));
 
+    // Fetch podcast title for notification
+    const { data: podcast } = await supabase
+      .from('podcasts')
+      .select('title')
+      .eq('id', body.podcast_id)
+      .single();
+
+    // Send Slack notification (non-blocking)
+    if (podcast) {
+      try {
+        const notifyResponse = await fetch(
+          `${supabaseUrl}/functions/v1/notify-slack`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${supabaseServiceKey}`,
+            },
+            body: JSON.stringify({
+              episode_title: normalizedTitle,
+              podcast_title: podcast.title,
+              episode_url: `https://id-preview--57878666-5b3f-4ee9-8717-4421e0d22401.lovable.app/podcasts/${body.podcast_id}`,
+            }),
+          }
+        );
+        const notifyResult = await notifyResponse.json();
+        console.log('Slack notification sent:', notifyResult);
+      } catch (notifyError) {
+        console.error('Failed to send Slack notification:', notifyError);
+        // Error is logged but doesn't block the success response
+      }
+    }
+
     return new Response(JSON.stringify({ success: true, episode: data }), {
       status: 201,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
