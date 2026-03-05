@@ -1,92 +1,38 @@
 
 
-# Slack-Benachrichtigung bei neuen Episoden
+# Bessere Fehlermeldung bei Backend-Schlafmodus
 
 ## Problem
+Wenn das Backend im Schlafmodus ist, schlägt der Login mit "Failed to fetch" fehl. Der Nutzer bekommt nur eine generische Fehlermeldung und weiß nicht, dass er kurz warten und es erneut versuchen soll.
 
-Die `add-episode` Edge Function speichert neue Episoden in der Datenbank, ruft aber **nicht** die `notify-slack` Function auf. Deshalb erhalten Slack-Abonnenten keine Benachrichtigungen.
+## Lösung
+In der `Auth.tsx` Login-Logik den `catch`-Block erweitern: Wenn der Fehler "Failed to fetch" oder "NetworkError" enthält, eine spezifische Toast-Nachricht anzeigen:
 
-## Lösungsansatz
+**Titel:** "Server wird gestartet"  
+**Beschreibung:** "Die Verbindung konnte nicht hergestellt werden. Bitte versuche es in 20 Sekunden erneut."
 
-Nach dem erfolgreichen Einfügen einer Episode wird automatisch die `notify-slack` Function aufgerufen.
+## Änderung
 
-## Technische Umsetzung
-
-### Änderung in `supabase/functions/add-episode/index.ts`
-
-Nach dem erfolgreichen Insert (ca. Zeile 278) wird folgender Code hinzugefügt:
-
-```text
-┌─────────────────────────────────────────────────────────────┐
-│  Episode erfolgreich erstellt                                │
-│                    ↓                                         │
-│  Podcast-Titel aus Datenbank abrufen (für Benachrichtigung) │
-│                    ↓                                         │
-│  notify-slack Function aufrufen mit:                         │
-│  - episode_title: Titel der neuen Episode                    │
-│  - podcast_title: Name des Podcasts                          │
-│  - episode_url: Link zur Episode (optional)                  │
-│                    ↓                                         │
-│  Erfolgsantwort zurückgeben                                  │
-└─────────────────────────────────────────────────────────────┘
-```
-
-### Code-Änderungen
-
-1. **Podcast-Titel abrufen**: Nach dem Erstellen der Episode wird der zugehörige Podcast-Titel aus der `podcasts`-Tabelle geholt.
-
-2. **notify-slack aufrufen**: Die Function wird mit den Episode-Details aufgerufen:
-   - `episode_title`: Titel der neuen Episode
-   - `podcast_title`: Name des Podcasts
-   - `episode_url`: URL zur Podcast-Detail-Seite (z.B. `https://[domain]/podcasts/[podcast_id]`)
-
-3. **Fehlerbehandlung**: Fehler bei der Benachrichtigung werden geloggt, blockieren aber nicht die Erfolgsantwort (die Episode ist bereits gespeichert).
-
-### Beispiel-Code
+**Datei:** `src/pages/Auth.tsx` (im `catch`-Block, ca. Zeile 93-99)
 
 ```typescript
-// Nach erfolgreichem Insert (Zeile 278)
-// Podcast-Titel für die Benachrichtigung holen
-const { data: podcast } = await supabase
-  .from('podcasts')
-  .select('title')
-  .eq('id', body.podcast_id)
-  .single();
-
-// Slack-Benachrichtigung senden (async, non-blocking)
-if (podcast) {
-  try {
-    const notifyResponse = await fetch(
-      `${supabaseUrl}/functions/v1/notify-slack`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${supabaseServiceKey}`,
-        },
-        body: JSON.stringify({
-          episode_title: normalizedTitle,
-          podcast_title: podcast.title,
-          episode_url: `https://[your-domain]/podcasts/${body.podcast_id}`,
-        }),
-      }
-    );
-    console.log('Slack notification sent:', await notifyResponse.json());
-  } catch (notifyError) {
-    console.error('Failed to send Slack notification:', notifyError);
-    // Fehler wird geloggt, aber nicht weitergegeben
+} catch (err) {
+  const message = err instanceof Error ? err.message : '';
+  if (message.includes('Failed to fetch') || message.includes('NetworkError')) {
+    toast({
+      title: 'Server wird gestartet',
+      description: 'Die Verbindung konnte nicht hergestellt werden. Bitte versuche es in 20 Sekunden erneut.',
+      variant: 'destructive',
+    });
+  } else {
+    toast({
+      title: 'Error',
+      description: 'An unexpected error occurred. Please try again.',
+      variant: 'destructive',
+    });
   }
 }
 ```
 
-## Vorteile
-
-- Automatische Benachrichtigung bei jedem neuen Episode-Upload
-- Kein manueller Eingriff erforderlich
-- Fehler bei der Benachrichtigung blockieren nicht den Upload-Prozess
-
-## Zu beachten
-
-- Die Episode-URL muss auf die korrekte Domain zeigen (wird aus den Projekteinstellungen ermittelt)
-- Die `notify-slack` Function muss deployed sein (bereits der Fall)
+Zusätzlich den gleichen Check in den `signIn`-Fehlerfall einbauen (ca. Zeile 65), da der Supabase-Client den "Failed to fetch"-Fehler auch als `error` im Response zurückgeben kann.
 
