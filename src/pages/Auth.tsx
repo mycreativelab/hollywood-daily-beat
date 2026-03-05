@@ -57,7 +57,13 @@ export default function Auth() {
       if (isLogin) {
         const { error } = await signIn(email, password);
         if (error) {
-          if (error.message.includes('Invalid login credentials')) {
+          if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            toast({
+              title: 'Server wird gestartet',
+              description: 'Die Verbindung konnte nicht hergestellt werden. Bitte versuche es in 20 Sekunden erneut.',
+              variant: 'destructive',
+            });
+          } else if (error.message.includes('Invalid login credentials')) {
             toast({
               title: 'Login failed',
               description: 'Invalid email or password. Please try again.',
