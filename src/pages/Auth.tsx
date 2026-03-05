@@ -57,7 +57,13 @@ export default function Auth() {
       if (isLogin) {
         const { error } = await signIn(email, password);
         if (error) {
-          if (error.message.includes('Invalid login credentials')) {
+          if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            toast({
+              title: 'Server wird gestartet',
+              description: 'Die Verbindung konnte nicht hergestellt werden. Bitte versuche es in 20 Sekunden erneut.',
+              variant: 'destructive',
+            });
+          } else if (error.message.includes('Invalid login credentials')) {
             toast({
               title: 'Login failed',
               description: 'Invalid email or password. Please try again.',
@@ -100,11 +106,20 @@ export default function Auth() {
         }
       }
     } catch (err) {
-      toast({
-        title: 'Error',
-        description: 'An unexpected error occurred. Please try again.',
-        variant: 'destructive',
-      });
+      const message = err instanceof Error ? err.message : '';
+      if (message.includes('Failed to fetch') || message.includes('NetworkError')) {
+        toast({
+          title: 'Server wird gestartet',
+          description: 'Die Verbindung konnte nicht hergestellt werden. Bitte versuche es in 20 Sekunden erneut.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: 'An unexpected error occurred. Please try again.',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setLoading(false);
     }
